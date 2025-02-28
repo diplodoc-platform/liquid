@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/diplodoc-platform/liquid/compare/v1.1.2...v1.1.3) (2025-02-28)
+
+
+### Bug Fixes
+
+* Add shortcuts to sourcemap API ([084e073](https://github.com/diplodoc-platform/liquid/commit/084e07396a649d0cbb02ca1e514c75128d5cb243))
+
 ## [1.1.2](https://github.com/diplodoc-platform/liquid/compare/v1.1.1...v1.1.2) (2025-02-28)
 
 
