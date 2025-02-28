@@ -43,15 +43,3 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
         if: ${{ steps.release.outputs.release_created }}
         shell: bash
-      - run: npm run artifact:pages
-        if: ${{ steps.release.outputs.release_created }}
-      - name: Upload static files as artifact
-        if: ${{ steps.release.outputs.release_created }}
-        id: artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: pages-build/
-      - name: Deploy to GitHub Pages
-        if: ${{ steps.release.outputs.release_created }}
-        id: deployment
-        uses: actions/deploy-pages@v4
