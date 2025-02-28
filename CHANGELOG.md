@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/diplodoc-platform/liquid/compare/v1.1.1...v1.1.2) (2025-02-28)
+
+
+### Bug Fixes
+
+* Fix exposed API ([da45c6e](https://github.com/diplodoc-platform/liquid/commit/da45c6e39a47a5dbef8aa1079780b9b2b4d3d2f6))
+
 ## [1.1.1](https://github.com/diplodoc-platform/liquid/compare/v1.1.0...v1.1.1) (2025-02-28)
 
 
