@@ -1,6 +1,6 @@
 {
   "name": "@diplodoc/liquid",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A simple transformer of text in YFM (Yandex Flavored Markdown) to HTML",
   "keywords": [
     "docs",
