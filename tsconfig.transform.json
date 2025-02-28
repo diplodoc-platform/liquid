@@ -10,7 +10,7 @@
     "noImplicitAny": true,
     "target": "ES6",
     "types": ["node"],
-    "sourceMap": true,
+    "sourceMap": true
   },
-  "include": ["src/transform/**/*"],
+  "include": ["src/**/*"]
 }

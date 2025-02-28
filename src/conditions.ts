@@ -1,7 +1,7 @@
 import type {LiquidContext} from './types';
 import type {SourceMap} from './sourcemap';
 
-import {bold} from 'chalk';
+import chalk from 'chalk';
 
 import {tagLine} from './syntax/lexical';
 import {NoValue, evaluate} from './syntax/evaluate';
@@ -273,7 +273,7 @@ export function applyConditions(
                 if (!ifTag) {
                     // TODO(3y3): make lint rule
                     this.log.error(
-                        `If block must be opened before close${path ? ` in ${bold(path)}` : ''}`,
+                        `If block must be opened before close${path ? ` in ${chalk.bold(path)}` : ''}`,
                     );
                     break;
                 }
@@ -299,7 +299,7 @@ export function applyConditions(
     }
 
     if (tagStack.length !== 0) {
-        this.log.error(`Condition block must be closed${path ? ` in ${bold(path)}` : ''}`);
+        this.log.error(`Condition block must be closed${path ? ` in ${chalk.bold(path)}` : ''}`);
     }
 
     return input;

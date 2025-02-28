@@ -1,6 +1,6 @@
 import type {LiquidContext} from './types';
 
-import {bold} from 'chalk';
+import chalk from 'chalk';
 
 import {getObject} from './utils';
 import {
@@ -31,7 +31,7 @@ export function applySubstitutions(
 
         if (value === undefined) {
             this.log.warn(
-                `Variable ${bold(trimVarPath)} not found${path ? ` in ${bold(path)}` : ''}`,
+                `Variable ${chalk.bold(trimVarPath)} not found${path ? ` in ${chalk.bold(path)}` : ''}`,
             );
 
             return input;
@@ -55,7 +55,7 @@ export function applySubstitutions(
 
         if (value === undefined) {
             this.log.warn(
-                `Variable ${bold(trimVarPath)} not found${path ? ` in ${bold(path)}` : ''}`,
+                `Variable ${chalk.bold(trimVarPath)} not found${path ? ` in ${chalk.bold(path)}` : ''}`,
             );
 
             return match;

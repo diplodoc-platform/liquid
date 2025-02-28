@@ -9,7 +9,6 @@ module.exports = {
     modulePaths: ['<rootDir>'],
     moduleDirectories: ['node_modules'],
     testPathIgnorePatterns: ['spec.js', 'spec.ts'],
-    snapshotSerializers: ['jest-serializer-html'],
     globals: {
         'ts-jest': {
             useESM: true,

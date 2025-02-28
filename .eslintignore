@@ -5,9 +5,8 @@
 .DS_Store
 node_modules
 /lib
+/coverage
+
 /dist
 /build
 /cache
-/coverage
-/pages-build
-/playground/www
