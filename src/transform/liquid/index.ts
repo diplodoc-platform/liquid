@@ -1,11 +1,10 @@
-import type {Dictionary} from 'lodash';
+import type {SourceMap} from './sourcemap';
 
 import cloneDeepWith from 'lodash/cloneDeepWith';
 
 import {composeFrontMatter, extractFrontMatter} from '../frontmatter';
 
 import applySubstitutions from './substitutions';
-import {prepareSourceMap} from './sourceMap';
 import applyCycles from './cycles';
 import applyConditions from './conditions';
 import ArgvService, {ArgvSettings} from './services/argv';
@@ -70,15 +69,12 @@ function repairCode(str: string, codes: string[]) {
     return replace(fence, fence, (code) => codes[Number(code)], str);
 }
 
-function liquidSnippet<
-    B extends boolean = false,
-    C = B extends false ? string : {output: string; sourceMap: Dictionary<string>},
->(
+function liquidSnippet(
     originInput: string,
     vars: Record<string, unknown>,
     path?: string,
-    settings?: ArgvSettings & {withSourceMap?: B},
-): C {
+    settings?: ArgvSettings & {sourcemap?: SourceMap},
+): string {
     const {
         cycles = true,
         conditions = true,
@@ -86,7 +82,7 @@ function liquidSnippet<
         conditionsInCode = false,
         useLegacyConditions = false,
         keepNotVar = false,
-        withSourceMap,
+        sourcemap,
     } = settings || {};
 
     ArgvService.init({
@@ -96,7 +92,6 @@ function liquidSnippet<
         conditionsInCode,
         useLegacyConditions,
         keepNotVar,
-        withSourceMap,
     });
 
     const codes: string[] = [];
@@ -105,24 +100,13 @@ function liquidSnippet<
         ? originInput
         : saveCode(originInput, vars, codes, path, substitutions);
 
-    let sourceMap: Record<number, number> = {};
-
-    if (withSourceMap) {
-        const lines = output.split('\n');
-        sourceMap = lines.reduce((acc: Record<number, number>, _cur, index) => {
-            acc[index + 1] = index + 1;
-
-            return acc;
-        }, {});
-    }
-
     if (cycles) {
-        output = applyCycles(output, vars, path, {sourceMap});
+        output = applyCycles(output, vars, path, {sourcemap});
     }
 
     if (conditions) {
         const strict = conditions === 'strict';
-        output = applyConditions(output, vars, path, {sourceMap, strict, useLegacyConditions});
+        output = applyConditions(output, vars, path, {sourcemap, strict});
     }
 
     if (substitutions) {
@@ -135,78 +119,35 @@ function liquidSnippet<
 
     codes.length = 0;
 
-    if (withSourceMap) {
-        return {
-            output,
-            sourceMap: prepareSourceMap(sourceMap),
-        } as unknown as C;
-    }
-
-    return output as unknown as C;
+    return output;
 }
 
-function linesCount(content: string) {
-    let count = 1,
-        index = -1;
-    while ((index = content.indexOf('\n', index + 1)) > -1) {
-        count++;
-    }
-
-    return count;
-}
-
-function liquidDocument<
-    B extends boolean = false,
-    C = B extends false ? string : {output: string; sourceMap: Dictionary<string>},
->(
+function liquidDocument(
     input: string,
     vars: Record<string, unknown>,
     path?: string,
-    settings?: ArgvSettings & {withSourceMap?: B},
-): C {
-    const [frontMatter, strippedContent] = extractFrontMatter(input, path);
+    settings: ArgvSettings & {sourcemap?: SourceMap} = {},
+): string {
+    const {sourcemap} = settings;
+    const [frontMatter, strippedContent, rawFrontmatter] = extractFrontMatter(input, path);
 
     const liquidedFrontMatter = cloneDeepWith(frontMatter, (value: unknown) =>
         typeof value === 'string'
             ? liquidSnippet(value, vars, path, {...settings, withSourceMap: false})
             : undefined,
     );
+    const composedFrontmatter = composeFrontMatter(liquidedFrontMatter);
 
-    const liquidedResult = liquidSnippet(strippedContent, vars, path, settings);
-    const liquidedContent =
-        typeof liquidedResult === 'object' ? liquidedResult.output : liquidedResult;
-
-    const output = composeFrontMatter(liquidedFrontMatter, liquidedContent);
-
-    if (typeof liquidedResult === 'object') {
-        const inputLinesCount = linesCount(input);
-        const outputLinesCount = linesCount(output);
-        const contentLinesCount = linesCount(strippedContent);
-        const contentLinesDiff = linesCount(liquidedContent) - contentLinesCount;
-
-        const fullLinesDiff = outputLinesCount - inputLinesCount;
-
-        // Always >= 0
-        const sourceOffset = inputLinesCount - contentLinesCount;
-        // Content lines diff already counted in source map
-        const resultOffset = fullLinesDiff - contentLinesDiff;
-
-        liquidedResult.sourceMap = Object.fromEntries(
-            Object.entries(liquidedResult.sourceMap).map(([lineInResult, lineInSource]) => [
-                (Number(lineInResult) + resultOffset).toString(),
-                (Number(lineInSource) + sourceOffset).toString(),
-            ]),
-        );
+    if (sourcemap && rawFrontmatter.length) {
+        sourcemap.patch({
+            replace: [[1, rawFrontmatter, composedFrontmatter]],
+        });
     }
 
-    // typeof check for better inference; the catch is that return of liquidSnippet can be an
-    // object even with source maps off, see `substitutions.test.ts`
-    return (settings?.withSourceMap && typeof liquidedResult === 'object'
-        ? {
-              output,
-              sourceMap: liquidedResult.sourceMap,
-          }
-        : output) as unknown as C;
+    const liquidedResult = liquidSnippet(strippedContent, vars, path, settings);
+    const output = composedFrontmatter + liquidedResult;
+
+    return output;
 }
 
 // both default and named exports for convenience

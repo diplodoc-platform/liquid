@@ -30,19 +30,15 @@ const escapeLiquid = (content: string): string =>
 const unescapeLiquid = (escapedContent: string): string =>
     escapedContent.replace(/\(\({{/g, '{{').replace(/}}\)\)/g, '}}');
 
-const matchMetadata = (fileContent: string) => {
-    if (!fileContent.startsWith(SEP)) {
+const matchMetadata = (content: string) => {
+    const rx = /^(?<open>[-]{3,}\r?\n)(?<meta>[\s\S]+?)(?<close>\r?\n[-]{3,}(?:\r?\n|$))/;
+    const match = rx.exec(content);
+
+    if (!match) {
         return null;
     }
 
-    const closeStart = fileContent.indexOf('\n' + SEP, SEP.length);
-    const closeEnd = fileContent.indexOf('\n', closeStart + 1);
-
-    if (closeStart === -1) {
-        return null;
-    }
-
-    return [fileContent.slice(SEP.length, closeStart).trim(), fileContent.slice(closeEnd + 1)];
+    return match.groups as {open: string; meta: string; close: string};
 };
 
 const duplicateKeysCompatibleLoad = (yaml: string, filePath: string | undefined) => {
@@ -70,25 +66,28 @@ const duplicateKeysCompatibleLoad = (yaml: string, filePath: string | undefined)
 export const extractFrontMatter = (
     fileContent: string,
     filePath?: string,
-): [FrontMatter, string] => {
+): [FrontMatter, string, string] => {
     const matches = matchMetadata(fileContent);
 
     if (matches) {
-        const [metadata, strippedContent] = matches;
+        const {open, close, meta} = matches;
+        const rawMeta = open + meta + close;
+        const strippedContent = fileContent.slice(rawMeta.length);
 
         return [
             cloneDeepWith(
-                duplicateKeysCompatibleLoad(escapeLiquid(metadata), filePath) as FrontMatter,
+                duplicateKeysCompatibleLoad(escapeLiquid(meta), filePath) as FrontMatter,
                 (v) => (typeof v === 'string' ? unescapeLiquid(v) : undefined),
             ),
             strippedContent,
+            rawMeta,
         ];
     }
 
-    return [{}, fileContent];
+    return [{}, fileContent, ''];
 };
 
-export const composeFrontMatter = (frontMatter: FrontMatter, strippedContent: string) => {
+export const composeFrontMatter = (frontMatter: FrontMatter, strippedContent = '') => {
     const dumped = dump(frontMatter, {lineWidth: -1}).trim();
 
     // This empty object check is a bit naive

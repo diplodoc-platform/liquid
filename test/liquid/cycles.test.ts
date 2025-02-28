@@ -99,9 +99,11 @@ describe('Cycles', () => {
                 * First comment
                 * Second comment
 
+
                 [https://example2.com](https://example2.com)
                 * Third comment
                 * Fourth comment
+
 
                 ## Second project
 
@@ -109,9 +111,11 @@ describe('Cycles', () => {
                 * First comment
                 * Second comment
 
+
                 [https://example2.com](https://example2.com)
                 * Third comment
                 * Fourth comment
+
 
                 Postfix
             `;

@@ -1,5 +1,6 @@
 import {liquidSnippet} from '../../src/transform/liquid';
 import {log} from '../../src/transform/log';
+import {SourceMap} from '../../src/transform/liquid/sourcemap';
 
 const testFn = 'test.md';
 const vars = {
@@ -21,6 +22,29 @@ describe('Check source map after liquid', () => {
         log.clear();
     });
 
+    it('check cycles', () => {
+        const input =
+            /*1*/ 'Prefix\n' +
+            /*2*/ '{% for user in users %}\n' +
+            /*3*/ '{{user}}\n' +
+            /*4*/ '{% endfor %}\n' +
+            /*5*/ 'Postfix';
+
+        const sourcemap = new SourceMap(input);
+
+        liquidSnippet(input, vars, testFn, {sourcemap});
+        /*
+              New line                 Source line
+              1    Prefix              1  Prefix
+              2    Alice               3  {{user}}
+              3    Ivan                -
+              4    Petr                -
+              5    Postfix             5  Postfix
+         */
+
+        expect(sourcemap.dump()).toEqual({'1': '1', '2': '3', '5': '5'});
+    });
+
     it('Simple check', () => {
         const input =
             /*1*/ 'Prefix\n' +
@@ -32,7 +56,8 @@ describe('Check source map after liquid', () => {
             /*7*/ '{% endif %}\n' +
             /*8*/ 'Postfix';
 
-        const {sourceMap} = liquidSnippet(input, vars, testFn, {withSourceMap: true});
+        const sourcemap = new SourceMap(input);
+        liquidSnippet(input, vars, testFn, {sourcemap});
         /*
               New line                 Source line
               1    Prefix              1  Prefix
@@ -43,7 +68,7 @@ describe('Check source map after liquid', () => {
               6    Postfix             8  Postfix
          */
 
-        expect(sourceMap).toEqual({'1': '1', '2': '3', '5': '6', '6': '8'});
+        expect(sourcemap.dump()).toEqual({'1': '1', '2': '3', '5': '6', '6': '8'});
     });
 
     it('Should works with two conditions in a row', () => {
@@ -55,9 +80,10 @@ describe('Check source map after liquid', () => {
             /*5*/ '    How are you?\n' +
             /*6*/ '{% endif %}';
 
-        const {sourceMap} = liquidSnippet(input, vars, testFn, {withSourceMap: true});
+        const sourcemap = new SourceMap(input);
+        liquidSnippet(input, vars, testFn, {sourcemap});
 
-        expect(sourceMap).toEqual({'1': '2', '2': '5'});
+        expect(sourcemap.dump()).toEqual({'1': '2', '2': '5'});
     });
 
     it('Should works with nested conditions', () => {
@@ -74,9 +100,10 @@ describe('Check source map after liquid', () => {
             /*10*/ '{% endif %}\n' +
             /*11*/ 'Postfix';
 
-        const {sourceMap} = liquidSnippet(input, vars, testFn, {withSourceMap: true});
+        const sourcemap = new SourceMap(input);
+        liquidSnippet(input, vars, testFn, {sourcemap});
 
-        expect(sourceMap).toEqual({'1': '1', '2': '3', '5': '9', '6': '11'});
+        expect(sourcemap.dump()).toEqual({'1': '1', '2': '3', '5': '9', '6': '11'});
     });
 
     it('Should works with nested cycles', () => {
@@ -89,9 +116,10 @@ describe('Check source map after liquid', () => {
             /*6*/ '{% endfor %}\n' +
             /*7*/ 'Postfix';
 
-        const {sourceMap} = liquidSnippet(input, vars, testFn, {withSourceMap: true});
+        const sourcemap = new SourceMap(input);
+        liquidSnippet(input, vars, testFn, {sourcemap});
 
-        expect(sourceMap).toEqual({'1': '1', '4': '5', '11': '7'});
+        expect(sourcemap.dump()).toEqual({'1': '1', '2': '3', '11': '7'});
     });
 
     it('Should works with fences: 2 lines', () => {
@@ -103,22 +131,25 @@ describe('Check source map after liquid', () => {
             /*5*/ '```\n' +
             /*6*/ 'Postfix';
 
-        const {sourceMap} = liquidSnippet(input, vars, testFn, {withSourceMap: true});
+        const sourcemap = new SourceMap(input);
+        liquidSnippet(input, vars, testFn, {sourcemap});
 
-        expect(sourceMap).toEqual(getDefaultSourceMap(6));
+        expect(sourcemap.dump()).toEqual(getDefaultSourceMap(5));
     });
 
     it('Should works with fences: 1 line', () => {
         const input = 'Prefix\n```some code there\n```\nPostfix';
-        const {sourceMap} = liquidSnippet(input, vars, testFn, {withSourceMap: true});
+        const sourcemap = new SourceMap(input);
+        liquidSnippet(input, vars, testFn, {sourcemap});
 
-        expect(sourceMap).toEqual(getDefaultSourceMap(5));
+        expect(sourcemap.dump()).toEqual(getDefaultSourceMap(4));
     });
 
     it('Should works with fences: inline', () => {
         const input = 'Prefix\n```some code there```\nPostfix';
-        const {sourceMap} = liquidSnippet(input, vars, testFn, {withSourceMap: true});
+        const sourcemap = new SourceMap(input);
+        liquidSnippet(input, vars, testFn, {sourcemap});
 
-        expect(sourceMap).toEqual(getDefaultSourceMap(3));
+        expect(sourcemap.dump()).toEqual(getDefaultSourceMap(3));
     });
 });

@@ -1,67 +1,48 @@
+import type {SourceMap} from './sourcemap';
+
 import {bold} from 'chalk';
 
 import {log} from '../log';
 
 import {NoValue, evalExp} from './evaluation';
 import {tagLine} from './lexical';
-import {SourceMapApi, createSourceMapApi, getLineNumber} from './sourceMap';
-import legacyConditions from './legacyConditions';
 
-interface SourceMap {
+interface SourcePoint {
     start: number;
     end: number;
     rawStart: string;
     rawEnd: string;
 }
 
-function resourcemap(source: string, ifTag: SourceMap, ifCon: SourceMap | null, api: SourceMapApi) {
-    const [sourseStartLine, sourceEndLine] = [
-        getLineNumber(source, ifTag.start + 1),
-        getLineNumber(source, ifTag.end - 1),
-    ];
+function resourcemap(
+    source: string,
+    ifTag: SourcePoint,
+    ifCon: SourcePoint | null,
+    sourcemap: SourceMap,
+) {
+    const lines = sourcemap.lines(source);
+    const sourcel = sourcemap.location(ifTag.start + 1, ifTag.end - 1, lines);
+    const isInlineTag = sourcel.start === sourcel.end;
 
-    if (sourseStartLine === sourceEndLine || ifTag === ifCon) {
+    if (isInlineTag || ifTag === ifCon) {
         return;
     }
 
-    const linesTotal = source.split('\n').length;
-    const {getSourceMapValue, moveLines, removeLines} = api;
-
-    let offsetRestLines;
     if (ifCon) {
-        const [resultStartLine, resultEndLine] = [
-            getLineNumber(source, ifCon.start),
-            getLineNumber(source, ifCon.end),
-        ];
+        const resultl = sourcemap.location(ifCon.start, ifCon.end, lines);
 
-        // Move condition's content to the top
-        const offsetContentLines = sourseStartLine - resultStartLine;
-        moveLines({
-            start: resultStartLine,
-            end: resultEndLine,
-            offset: offsetContentLines,
-            withReplace: true,
+        sourcemap.patch({
+            delete: [
+                {start: resultl.end + 1, end: sourcel.end},
+                {start: sourcel.start, end: resultl.start - 1},
+            ],
         });
-
-        // Remove the rest lines of the condition block
-        removeLines({start: sourseStartLine, end: resultStartLine - 1});
-        removeLines({start: resultEndLine + 1, end: sourceEndLine});
-
-        // Calculate an offset of the rest lines
-        offsetRestLines = getSourceMapValue(resultEndLine) - sourceEndLine;
     } else {
-        // Remove the whole condition block
-        removeLines({start: sourseStartLine, end: sourceEndLine});
-
-        // Calculate offset of the rest lines
-        offsetRestLines = sourseStartLine - sourceEndLine - 1;
+        sourcemap.patch({delete: [sourcel]});
     }
-
-    // Offset the rest lines
-    moveLines({start: sourceEndLine + 1, end: linesTotal, offset: offsetRestLines});
 }
 
-type IfCondition = SourceMap & {
+type IfCondition = SourcePoint & {
     expr: string;
 };
 
@@ -128,7 +109,7 @@ function trimInlineResult(content: string, ifTag: IfTag) {
     return content;
 }
 
-class IfTag implements SourceMap {
+class IfTag implements SourcePoint {
     private conditions: IfCondition[] = [];
 
     get start() {
@@ -246,18 +227,12 @@ export = function conditions(
     input: string,
     vars: Record<string, unknown>,
     path?: string,
-    settings?: {
-        sourceMap: Record<number, number>;
+    settings: {
+        sourcemap?: SourceMap;
         strict?: boolean;
-        useLegacyConditions?: boolean;
-    },
+    } = {},
 ) {
-    if (settings?.useLegacyConditions) {
-        return legacyConditions(input, vars, path, settings);
-    }
-
-    const sourceMap = settings?.sourceMap || {};
-    const strict = settings?.strict || false;
+    const {sourcemap, strict = false} = settings;
     const tagStack: IfTag[] = [];
 
     // Consumes all between curly braces
@@ -309,7 +284,9 @@ export = function conditions(
 
                 const {result, lastIndex, ifCon} = inlineConditions(input, ifTag, vars, strict);
 
-                resourcemap(input, ifTag, ifCon, createSourceMapApi(sourceMap));
+                if (sourcemap) {
+                    resourcemap(input, ifTag, ifCon, sourcemap);
+                }
 
                 R_LIQUID.lastIndex = lastIndex;
                 input = result;

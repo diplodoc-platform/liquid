@@ -1,3 +1,5 @@
+import type {SourceMap} from './sourcemap';
+
 import {bold} from 'chalk';
 
 import {log} from '../log';
@@ -5,90 +7,47 @@ import {log} from '../log';
 import {evalExp} from './evaluation';
 import {tagLine, variable} from './lexical';
 import {getPreparedLeftContent} from './utils';
-import {createSourceMapApi, getLineNumber} from './sourceMap';
 
 import {liquidSnippet} from './index';
 
-type Options = {
-    firstLineNumber: number;
-    lastLineNumber: number;
-    resFirstLineNumber: number;
-    resLastLineNumber: number;
-    contentLinesTotal: number;
-    linesTotal: number;
-    sourceMap: Record<number, number>;
-};
+function resourcemap(
+    source: string,
+    template: string,
+    result: string,
+    forTag: Tag,
+    sourcemap: SourceMap,
+) {
+    const lines = sourcemap.lines(source);
 
-function changeSourceMap({
-    firstLineNumber,
-    lastLineNumber,
-    resFirstLineNumber,
-    resLastLineNumber,
-    contentLinesTotal,
-    linesTotal,
-    sourceMap,
-}: Options) {
-    if (!sourceMap) {
+    if (!forTag.multiline) {
         return;
     }
 
-    const isInlineTag = firstLineNumber === lastLineNumber;
-    const {moveLines, removeLine} = createSourceMapApi(sourceMap);
-
-    if (isInlineTag || !resFirstLineNumber) {
-        return;
-    }
-
-    const offsetRestLines = contentLinesTotal - (lastLineNumber - firstLineNumber + 1);
-
-    // Move condition's content to the top
-    const offsetContentLines = firstLineNumber - resFirstLineNumber;
-    moveLines({
-        start: resFirstLineNumber,
-        end: resLastLineNumber - 1,
-        offset: offsetContentLines,
-        withReplace: true,
+    sourcemap.patch({
+        delete: [
+            sourcemap.location(forTag.startPos, forTag.contentStart - 1, lines),
+            sourcemap.location(forTag.contentEnd + 1, forTag.endPos, lines),
+        ],
+        replace: [
+            [
+                sourcemap.location(forTag.contentStart, forTag.contentStart, lines).start,
+                template,
+                result,
+            ],
+        ],
     });
-
-    // Remove tags
-    removeLine(firstLineNumber);
-    removeLine(lastLineNumber);
-
-    // Offset the rest lines
-    moveLines({start: lastLineNumber + 1, end: linesTotal, offset: offsetRestLines});
 }
 
 type Args2 = {
     forTag: Tag;
     vars: Record<string, unknown>;
     content: string;
-    match: RegExpExecArray;
     path?: string;
-    lastIndex: number;
-    sourceMap: Record<number, number>;
-    linesTotal: number;
+    sourcemap?: SourceMap;
 };
 
-function inlineConditions({
-    forTag,
-    vars,
-    content,
-    match,
-    path,
-    lastIndex,
-    sourceMap,
-    linesTotal,
-}: Args2) {
-    let res = '';
-    const firstLineNumber = getLineNumber(content, forTag.startPos);
-    const lastLineNumber = getLineNumber(content, lastIndex);
-
-    const forRawLastIndex = forTag.startPos + forTag.forRaw.length;
-    const contentLastIndex = match.index;
-
-    const forTemplate = content.substring(forRawLastIndex, contentLastIndex);
-    const resFirstLineNumber = getLineNumber(content, forRawLastIndex + 1);
-    const resLastLineNumber = getLineNumber(content, contentLastIndex + 1);
+function inlineConditions({forTag, vars, content, path, sourcemap}: Args2) {
+    const forTemplate = content.substring(forTag.contentStart, forTag.contentEnd);
 
     let collection = evalExp(forTag.collectionName, vars);
     if (!collection || !Array.isArray(collection)) {
@@ -96,22 +55,16 @@ function inlineConditions({
         log.error(`${bold(forTag.collectionName)} is undefined or not iterable`);
     }
 
-    collection.forEach((item) => {
+    const results = collection.map((item) => {
         const newVars = {...vars, [forTag.variableName]: item};
-        res += liquidSnippet(forTemplate, newVars, path).trimRight();
+        return liquidSnippet(forTemplate, newVars, path).replace(/ +$/, '');
     });
 
-    const contentLinesTotal = res.split('\n').length - 1;
+    let res = results.join(forTag.multiline ? '\n' : '');
 
-    changeSourceMap({
-        firstLineNumber,
-        lastLineNumber,
-        resFirstLineNumber,
-        resLastLineNumber,
-        linesTotal,
-        sourceMap,
-        contentLinesTotal,
-    });
+    if (sourcemap) {
+        resourcemap(content, forTemplate, res, forTag, sourcemap);
+    }
 
     const preparedLeftContent = getPreparedLeftContent({
         content,
@@ -123,21 +76,19 @@ function inlineConditions({
     if (
         res === '' &&
         preparedLeftContent[preparedLeftContent.length - 1] === '\n' &&
-        content[lastIndex] === '\n'
+        content[forTag.endPos] === '\n'
     ) {
         shift = 1;
     }
 
-    if (res !== '') {
-        if (res[0] === ' ' || res[0] === '\n') {
-            res = res.substring(1);
-        }
+    if (res[0] === ' ') {
+        res = res.substring(1);
     }
 
     const leftPart = preparedLeftContent + res;
 
     return {
-        result: leftPart + content.substring(lastIndex + shift),
+        result: leftPart + content.substring(forTag.endPos + shift),
         idx: leftPart.length,
     };
 }
@@ -147,40 +98,38 @@ type Tag = {
     variableName: string;
     collectionName: string;
     startPos: number;
-    forRaw: string;
+    contentStart: number;
+    contentEnd: number;
+    endPos: number;
+    multiline: boolean;
 };
 
 export = function cycles(
     originInput: string,
     vars: Record<string, unknown>,
     path?: string,
-    settings: {sourceMap?: Record<number, number>} = {},
+    settings: {sourcemap?: SourceMap} = {},
 ) {
-    const {sourceMap} = settings;
+    const {sourcemap} = settings;
 
-    const R_LIQUID = /({%-?([\s\S]*?)-?%})/g;
+    const R_LIQUID = /{%-?(?<for>\s*for[^}]+?)-?%}\n?|\n?{%-?(?<endfor>\s*endfor[^}]+?)-?%}/g;
     const FOR_SYNTAX = new RegExp(`(\\w+)\\s+in\\s+(${variable.source})`);
 
     let match;
     const tagStack: Tag[] = [];
     let input = originInput;
     let countSkippedInnerTags = 0;
-    let linesTotal = originInput.split('\n').length;
 
-    while ((match = R_LIQUID.exec(input)) !== null) {
-        if (!match[1]) {
-            continue;
-        }
+    while ((match = R_LIQUID.exec(input))) {
+        switch (true) {
+            case Boolean(match.groups?.for): {
+                const tagMatch = match.groups?.for.match(tagLine);
+                if (!tagMatch) {
+                    continue;
+                }
 
-        const tagMatch = match[2].trim().match(tagLine);
-        if (!tagMatch) {
-            continue;
-        }
+                const [args] = tagMatch.slice(2);
 
-        const [type, args] = tagMatch.slice(1);
-
-        switch (type) {
-            case 'for': {
                 if (tagStack.length) {
                     countSkippedInnerTags += 1;
                     break;
@@ -198,11 +147,14 @@ export = function cycles(
                     variableName,
                     collectionName,
                     startPos: match.index,
-                    forRaw: match[1],
+                    endPos: -1,
+                    contentStart: R_LIQUID.lastIndex,
+                    contentEnd: -1,
+                    multiline: match[0].endsWith('\n'),
                 });
                 break;
             }
-            case 'endfor': {
+            case Boolean(match.groups?.endfor): {
                 if (countSkippedInnerTags > 0) {
                     countSkippedInnerTags -= 1;
                     break;
@@ -216,19 +168,24 @@ export = function cycles(
                     break;
                 }
 
+                forTag.endPos = R_LIQUID.lastIndex;
+                forTag.contentEnd = match.index;
+
                 const {idx, result} = inlineConditions({
                     forTag,
                     vars,
                     content: input,
-                    match,
                     path,
-                    lastIndex: R_LIQUID.lastIndex,
-                    sourceMap: sourceMap || {},
-                    linesTotal,
+                    sourcemap,
                 });
                 R_LIQUID.lastIndex = idx;
                 input = result;
-                linesTotal = result.split('\n').length;
+
+                // let lastIndex = R_LIQUID.lastIndex;
+                // if (input[lastIndex] === '\n') {
+                //     lastIndex -= 1;
+                // }
+                // R_LIQUID.lastIndex = lastIndex;
 
                 break;
             }
