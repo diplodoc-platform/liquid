@@ -17,7 +17,7 @@ export function applySubstitutions(
     vars: Record<string, unknown>,
 ) {
     const {path} = this;
-    const {keepNotVar} = this.settings;
+    const {keepNotVar = false} = this.settings;
 
     if (isSingleVariable(input)) {
         const match = input.match(singleVariableRe);

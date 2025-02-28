@@ -54,6 +54,15 @@ export class SourceMap {
         return dump;
     }
 
+    delete(start: number, content: string) {
+        const lines = this.lines(content);
+        const point = this.location(start, content.length, lines);
+
+        this.patch({
+            delete: [point],
+        });
+    }
+
     patch(tx: Partial<SourceMapTx>) {
         const flow = {
             offset: 0,

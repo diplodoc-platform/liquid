@@ -5,11 +5,11 @@ export type Logger = {
 };
 
 export type LiquidSettings = {
-    conditions: boolean | 'strict';
-    conditionsInCode: boolean;
-    cycles: boolean;
-    substitutions: boolean;
-    keepNotVar: boolean;
+    conditions?: boolean | 'strict';
+    conditionsInCode?: boolean;
+    cycles?: boolean;
+    substitutions?: boolean;
+    keepNotVar?: boolean;
 };
 
 export type LiquidContext = {

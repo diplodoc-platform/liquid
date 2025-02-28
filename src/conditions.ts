@@ -190,7 +190,7 @@ function inlineConditions(
     vars: Record<string, unknown>,
     ifTag: IfTag,
 ) {
-    const {conditions} = this.settings;
+    const {conditions = true} = this.settings;
 
     let ifCon = null;
 

@@ -36,7 +36,7 @@ export function getPreparedLeftContent({content, tagStartPos, tagContent}: Opts)
 const fence = '```';
 
 export function codeUtils(this: LiquidContext) {
-    const {substitutions} = this.settings;
+    const {substitutions = true} = this.settings;
     const codes: string[] = [];
 
     const find = (open: string, close: string, string: string, index: number) => {

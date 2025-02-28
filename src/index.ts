@@ -9,6 +9,8 @@ import {applyCycles} from './cycles';
 import {applyConditions} from './conditions';
 import {codeUtils} from './utils';
 
+export type {LiquidContext} from './types';
+
 export {evaluate} from './syntax/evaluate';
 export {SourceMap} from './sourcemap';
 export {composeFrontMatter, extractFrontMatter} from './frontmatter';
@@ -81,16 +83,12 @@ export function liquidDocument(
     return composedFrontmatter + liquidedResult;
 }
 
-export function createContext(logger: Logger, settings?: Partial<LiquidSettings>): LiquidContext {
+export function createContext(
+    logger: Logger,
+    settings: Partial<LiquidSettings> = {},
+): LiquidContext {
     return {
         logger,
-        settings: {
-            cycles: true,
-            conditions: true,
-            conditionsInCode: false,
-            substitutions: true,
-            keepNotVar: false,
-            ...settings,
-        },
+        settings,
     };
 }
