@@ -21,7 +21,7 @@
   },
   "license": "MIT",
   "author": "YFM Team <yfm-team@yandex.ru>",
-  "main": "lib/index.js",
+  "main": "lib/liquid/index.js",
   "files": [
     "lib"
   ],
