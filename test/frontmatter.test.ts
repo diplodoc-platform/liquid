@@ -1,10 +1,10 @@
-import type {LiquidSettings} from '../../src/transform/types';
+import type {LiquidSettings} from '../src/types';
 
 import dedent from 'ts-dedent';
 
-import {composeFrontMatter, extractFrontMatter} from '../../src/transform/frontmatter';
-import {createContext, liquidDocument as liquid} from '../../src/transform';
-import {logger} from '../../src/transform/utils';
+import {composeFrontMatter, extractFrontMatter} from '../src/frontmatter';
+import {createContext, liquidDocument as liquid} from '../src';
+import {logger} from '../src/utils';
 
 function liquidDocument(
     input: string,

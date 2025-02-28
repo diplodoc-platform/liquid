@@ -1,8 +1,8 @@
-import type {LiquidSettings} from '../../src/transform/types';
+import type {LiquidSettings} from '../src/types';
 
-import {applySubstitutions} from '../../src/transform/substitutions';
-import {createContext} from '../../src/transform';
-import {logger} from '../../src/transform/utils';
+import {applySubstitutions} from '../src/substitutions';
+import {createContext} from '../src';
+import {logger} from '../src/utils';
 
 function substitutions(
     input: string,

@@ -1,4 +1,4 @@
-import {isSingleVariable} from '../../src/transform/syntax/lexical';
+import {isSingleVariable} from '../src/syntax/lexical';
 
 describe('Lexical functions', () => {
     describe('isSingleVariable', () => {

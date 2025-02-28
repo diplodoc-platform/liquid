@@ -1,6 +1,6 @@
-import {SourceMap} from '../../src/transform/sourcemap';
-import {createContext, liquidSnippet as liquid} from '../../src/transform';
-import {logger} from '../../src/transform/utils';
+import {SourceMap} from '../src/sourcemap';
+import {createContext, liquidSnippet as liquid} from '../src';
+import {logger} from '../src/utils';
 
 function liquidSnippet(input: string, vars: Record<string, unknown>, sourcemap: SourceMap) {
     const context = createContext(logger());

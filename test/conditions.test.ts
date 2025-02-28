@@ -1,10 +1,10 @@
-import type {LiquidSettings} from '../../src/transform/types';
+import type {LiquidSettings} from '../src/types';
 
 import dedent from 'ts-dedent';
 
-import {logger} from '../../src/transform/utils';
-import {applyConditions} from '../../src/transform/conditions';
-import {createContext} from '../../src/transform';
+import {logger} from '../src/utils';
+import {applyConditions} from '../src/conditions';
+import {createContext} from '../src';
 
 function conditions(
     input: string,

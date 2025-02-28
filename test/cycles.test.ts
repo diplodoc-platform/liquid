@@ -1,9 +1,9 @@
-import type {LiquidSettings} from '../../src/transform/types';
+import type {LiquidSettings} from '../src/types';
 
 import dedent from 'ts-dedent';
 
-import {createContext, liquidSnippet as liquid} from '../../src/transform';
-import {logger} from '../../src/transform/utils';
+import {createContext, liquidSnippet as liquid} from '../src';
+import {logger} from '../src/utils';
 
 function liquidSnippet(
     input: string,
