@@ -44,7 +44,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "chalk": "^5.4.1",
+    "chalk": "4",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21"
   },

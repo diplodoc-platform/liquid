@@ -1,15 +1,14 @@
 {
   "extends": "@diplodoc/tsconfig",
   "compilerOptions": {
-    "lib": ["DOM", "ES6"],
+    "lib": ["DOM", "es2018"],
     "outDir": "lib",
     "module": "commonjs",
     "baseUrl": ".",
     "declaration": true,
     "isolatedModules": true,
     "noImplicitAny": true,
-    "target": "ES6",
-    "types": ["node"],
+    "target": "ES2018",
     "sourceMap": true
   },
   "include": ["src/**/*"]

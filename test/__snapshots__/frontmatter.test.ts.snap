@@ -2,7 +2,7 @@
 
 exports[`Liquid substitutions in front matter (formerly metadata) should not fail even when variables contain reserved characters (YAML multiline syntax) 1`] = `
 "---
-multiline: \\">- This should break, right?\\\\n\\\\tRight?\\"
+multiline: ">- This should break, right?\\n\\tRight?"
 ---
 Content"
 `;
@@ -16,7 +16,7 @@ Content"
 
 exports[`Liquid substitutions in front matter (formerly metadata) should not fail even when variables contain reserved characters (double quotes) 1`] = `
 "---
-quotes: '\\"When you arise in the morning, think of what a precious privilege it is to be alive - to breathe, to think, to enjoy, to love.\\" — Marcus Aurelius (allegedly)'
+quotes: '"When you arise in the morning, think of what a precious privilege it is to be alive - to breathe, to think, to enjoy, to love." — Marcus Aurelius (allegedly)'
 ---
 Content"
 `;
