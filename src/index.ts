@@ -9,6 +9,10 @@ import {applyCycles} from './cycles';
 import {applyConditions} from './conditions';
 import {codeUtils} from './utils';
 
+export {evaluate} from './syntax/evaluate';
+export {SourceMap} from './sourcemap';
+export {composeFrontMatter, extractFrontMatter} from './frontmatter';
+
 export function liquidSnippet(
     this: LiquidContext,
     input: string,
