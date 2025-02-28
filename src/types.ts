@@ -1,5 +1,5 @@
 export type Logger = {
-    log: (...args: unknown[]) => void;
+    info: (...args: unknown[]) => void;
     warn: (...args: unknown[]) => void;
     error: (...args: unknown[]) => void;
 };
@@ -13,7 +13,7 @@ export type LiquidSettings = {
 };
 
 export type LiquidContext = {
-    log: Logger;
+    logger: Logger;
     settings: LiquidSettings;
     path?: string;
 };

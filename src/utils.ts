@@ -120,7 +120,7 @@ export function getObject(path: string, obj: Record<string, any>, fallback?: any
 
 export function logger() {
     return {
-        log: () => {},
+        info: () => {},
         warn: () => {},
         error: () => {},
     };

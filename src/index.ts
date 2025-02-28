@@ -81,9 +81,9 @@ export function liquidDocument(
     return composedFrontmatter + liquidedResult;
 }
 
-export function createContext(log: Logger, settings?: Partial<LiquidSettings>): LiquidContext {
+export function createContext(logger: Logger, settings?: Partial<LiquidSettings>): LiquidContext {
     return {
-        log,
+        logger,
         settings: {
             cycles: true,
             conditions: true,

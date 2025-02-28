@@ -30,7 +30,7 @@ export function applySubstitutions(
         const value = substituteVariable.call(this, trimVarPath, vars);
 
         if (value === undefined) {
-            this.log.warn(
+            this.logger.warn(
                 `Variable ${chalk.bold(trimVarPath)} not found${path ? ` in ${chalk.bold(path)}` : ''}`,
             );
 
@@ -54,7 +54,7 @@ export function applySubstitutions(
         const value = substituteVariable.call(this, trimVarPath, vars);
 
         if (value === undefined) {
-            this.log.warn(
+            this.logger.warn(
                 `Variable ${chalk.bold(trimVarPath)} not found${path ? ` in ${chalk.bold(path)}` : ''}`,
             );
 

@@ -49,7 +49,7 @@ function inlineConditions(
     let collection = evaluate.call(this, forTag.collectionName, vars);
     if (!collection || !Array.isArray(collection)) {
         collection = [];
-        this.log.error(`${chalk.bold(forTag.collectionName)} is undefined or not iterable`);
+        this.logger.error(`${chalk.bold(forTag.collectionName)} is undefined or not iterable`);
     }
 
     const results = collection.map((item) => {
@@ -133,7 +133,7 @@ export function applyCycles(
 
                 const matches = args.match(FOR_SYNTAX);
                 if (!matches) {
-                    this.log.error(
+                    this.logger.error(
                         `Incorrect syntax in if condition${path ? ` in ${chalk.bold(path)}` : ''}`,
                     );
                     break;
@@ -160,7 +160,7 @@ export function applyCycles(
                 const forTag = tagStack.pop();
 
                 if (!forTag) {
-                    this.log.error(
+                    this.logger.error(
                         `For block must be opened before close${path ? ` in ${chalk.bold(path)}` : ''}`,
                     );
                     break;
@@ -179,7 +179,7 @@ export function applyCycles(
     }
 
     if (tagStack.length !== 0) {
-        this.log.error(`For block must be closed${path ? ` in ${chalk.bold(path)}` : ''}`);
+        this.logger.error(`For block must be closed${path ? ` in ${chalk.bold(path)}` : ''}`);
     }
 
     return input;

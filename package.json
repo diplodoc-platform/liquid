@@ -21,11 +21,12 @@
   },
   "license": "MIT",
   "author": "YFM Team <yfm-team@yandex.ru>",
-  "main": "lib/index.js",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "exports": {
     ".": {
-      "types": "lib/index.d.ts",
-      "default": "lib/index.js"
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
     }
   },
   "files": [

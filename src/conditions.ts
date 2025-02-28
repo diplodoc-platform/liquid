@@ -272,7 +272,7 @@ export function applyConditions(
 
                 if (!ifTag) {
                     // TODO(3y3): make lint rule
-                    this.log.error(
+                    this.logger.error(
                         `If block must be opened before close${path ? ` in ${chalk.bold(path)}` : ''}`,
                     );
                     break;
@@ -299,7 +299,7 @@ export function applyConditions(
     }
 
     if (tagStack.length !== 0) {
-        this.log.error(`Condition block must be closed${path ? ` in ${chalk.bold(path)}` : ''}`);
+        this.logger.error(`Condition block must be closed${path ? ` in ${chalk.bold(path)}` : ''}`);
     }
 
     return input;

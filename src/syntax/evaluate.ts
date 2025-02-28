@@ -153,7 +153,7 @@ export function evaluate(
 
         return evalValue(exp, scope, strict);
     } catch (e) {
-        const log = this?.log || logger();
+        const log = this?.logger || logger();
 
         if (e instanceof SkippedEvalError) {
             log.warn(`Skip error: ${e}`);
