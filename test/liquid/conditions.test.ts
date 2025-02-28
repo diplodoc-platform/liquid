@@ -1,6 +1,6 @@
 import dedent from 'ts-dedent';
 
-import conditions from '../../src/transform/liquid/conditions';
+import conditions from '../../src/transform/conditions';
 
 describe('Conditions', () => {
     describe('location', () => {

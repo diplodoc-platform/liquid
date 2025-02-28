@@ -2,8 +2,7 @@ import type {SourceMap} from './sourcemap';
 
 import {bold} from 'chalk';
 
-import {log} from '../log';
-
+import {log} from './log';
 import {NoValue, evalExp} from './evaluation';
 import {tagLine} from './lexical';
 

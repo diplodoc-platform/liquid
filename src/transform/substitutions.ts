@@ -1,8 +1,7 @@
 import {bold} from 'chalk';
 
-import getObject from '../getObject';
-import {log} from '../log';
-
+import getObject from './getObject';
+import {log} from './log';
 import ArgvService from './services/argv';
 import {evalExp} from './evaluation';
 import {

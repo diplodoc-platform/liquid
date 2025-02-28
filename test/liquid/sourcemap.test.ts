@@ -1,6 +1,6 @@
-import {liquidSnippet} from '../../src/transform/liquid';
+import {liquidSnippet} from '../../src/transform';
 import {log} from '../../src/transform/log';
-import {SourceMap} from '../../src/transform/liquid/sourcemap';
+import {SourceMap} from '../../src/transform/sourcemap';
 
 const testFn = 'test.md';
 const vars = {

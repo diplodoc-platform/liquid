@@ -2,8 +2,7 @@ import type {SourceMap} from './sourcemap';
 
 import cloneDeepWith from 'lodash/cloneDeepWith';
 
-import {composeFrontMatter, extractFrontMatter} from '../frontmatter';
-
+import {composeFrontMatter, extractFrontMatter} from './frontmatter';
 import applySubstitutions from './substitutions';
 import applyCycles from './cycles';
 import applyConditions from './conditions';

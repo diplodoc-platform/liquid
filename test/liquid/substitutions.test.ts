@@ -1,4 +1,4 @@
-import {liquidSnippet} from '../../src/transform/liquid';
+import {liquidSnippet} from '../../src/transform';
 
 describe('Substitutions', () => {
     test('Should substitute to inline text', () => {
