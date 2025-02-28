@@ -10,10 +10,6 @@ module.exports = {
     moduleDirectories: ['node_modules'],
     testPathIgnorePatterns: ['spec.js', 'spec.ts'],
     snapshotSerializers: ['jest-serializer-html'],
-    moduleNameMapper: {
-        '\\.(css|less|scss|sss|styl)$': '<rootDir>/node_modules/jest-css-modules',
-        '.+\\.(svg|png|jpg)$': 'identity-obj-proxy',
-    },
     globals: {
         'ts-jest': {
             useESM: true,

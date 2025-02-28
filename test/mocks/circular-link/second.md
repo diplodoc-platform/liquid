@@ -1,3 +1,0 @@
-# Second
-
-[{#T}](./first.md)

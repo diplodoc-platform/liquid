@@ -1,7 +1,7 @@
 import dedent from 'ts-dedent';
 
 import {composeFrontMatter, extractFrontMatter} from '../../src/transform/frontmatter';
-import liquidDocument from '../../src/transform/liquid';
+import {liquidDocument} from '../../src/transform/liquid';
 
 describe('front matter extract/emplace utility function pair', () => {
     it.each([

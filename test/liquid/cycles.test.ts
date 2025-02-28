@@ -1,6 +1,6 @@
 import dedent from 'ts-dedent';
 
-import liquidSnippet from '../../src/transform/liquid';
+import {liquidSnippet} from '../../src/transform/liquid';
 
 const commentsByPage = [
     {

@@ -211,4 +211,3 @@ function liquidDocument<
 
 // both default and named exports for convenience
 export {liquidDocument, liquidSnippet};
-export default liquidDocument;

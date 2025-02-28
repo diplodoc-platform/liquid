@@ -1,4 +1,4 @@
-import liquidSnippet from '../../src/transform/liquid';
+import {liquidSnippet} from '../../src/transform/liquid';
 import {log} from '../../src/transform/log';
 
 const testFn = 'test.md';

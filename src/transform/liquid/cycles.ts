@@ -7,7 +7,7 @@ import {tagLine, variable} from './lexical';
 import {getPreparedLeftContent} from './utils';
 import {createSourceMapApi, getLineNumber} from './sourceMap';
 
-import applyLiquid from './index';
+import {liquidSnippet} from './index';
 
 type Options = {
     firstLineNumber: number;
@@ -98,7 +98,7 @@ function inlineConditions({
 
     collection.forEach((item) => {
         const newVars = {...vars, [forTag.variableName]: item};
-        res += applyLiquid(forTemplate, newVars, path).trimRight();
+        res += liquidSnippet(forTemplate, newVars, path).trimRight();
     });
 
     const contentLinesTotal = res.split('\n').length - 1;
