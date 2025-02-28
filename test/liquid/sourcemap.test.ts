@@ -1,8 +1,13 @@
-import {liquidSnippet} from '../../src/transform';
-import {log} from '../../src/transform/log';
 import {SourceMap} from '../../src/transform/sourcemap';
+import {createContext, liquidSnippet as liquid} from '../../src/transform';
+import {logger} from '../../src/transform/utils';
 
-const testFn = 'test.md';
+function liquidSnippet(input: string, vars: Record<string, unknown>, sourcemap: SourceMap) {
+    const context = createContext(logger());
+    context.path = 'test.md';
+    return liquid.call(context, input, vars, sourcemap);
+}
+
 const vars = {
     users: ['Alice', 'Ivan', 'Petr'],
     test: true,
@@ -18,10 +23,6 @@ const getDefaultSourceMap = (linesCount: number) => {
 };
 
 describe('Check source map after liquid', () => {
-    beforeEach(() => {
-        log.clear();
-    });
-
     it('check cycles', () => {
         const input =
             /*1*/ 'Prefix\n' +
@@ -32,7 +33,7 @@ describe('Check source map after liquid', () => {
 
         const sourcemap = new SourceMap(input);
 
-        liquidSnippet(input, vars, testFn, {sourcemap});
+        liquidSnippet(input, vars, sourcemap);
         /*
               New line                 Source line
               1    Prefix              1  Prefix
@@ -57,7 +58,7 @@ describe('Check source map after liquid', () => {
             /*8*/ 'Postfix';
 
         const sourcemap = new SourceMap(input);
-        liquidSnippet(input, vars, testFn, {sourcemap});
+        liquidSnippet(input, vars, sourcemap);
         /*
               New line                 Source line
               1    Prefix              1  Prefix
@@ -81,7 +82,7 @@ describe('Check source map after liquid', () => {
             /*6*/ '{% endif %}';
 
         const sourcemap = new SourceMap(input);
-        liquidSnippet(input, vars, testFn, {sourcemap});
+        liquidSnippet(input, vars, sourcemap);
 
         expect(sourcemap.dump()).toEqual({'1': '2', '2': '5'});
     });
@@ -101,7 +102,7 @@ describe('Check source map after liquid', () => {
             /*11*/ 'Postfix';
 
         const sourcemap = new SourceMap(input);
-        liquidSnippet(input, vars, testFn, {sourcemap});
+        liquidSnippet(input, vars, sourcemap);
 
         expect(sourcemap.dump()).toEqual({'1': '1', '2': '3', '5': '9', '6': '11'});
     });
@@ -117,7 +118,7 @@ describe('Check source map after liquid', () => {
             /*7*/ 'Postfix';
 
         const sourcemap = new SourceMap(input);
-        liquidSnippet(input, vars, testFn, {sourcemap});
+        liquidSnippet(input, vars, sourcemap);
 
         expect(sourcemap.dump()).toEqual({'1': '1', '2': '3', '11': '7'});
     });
@@ -132,7 +133,7 @@ describe('Check source map after liquid', () => {
             /*6*/ 'Postfix';
 
         const sourcemap = new SourceMap(input);
-        liquidSnippet(input, vars, testFn, {sourcemap});
+        liquidSnippet(input, vars, sourcemap);
 
         expect(sourcemap.dump()).toEqual(getDefaultSourceMap(5));
     });
@@ -140,7 +141,7 @@ describe('Check source map after liquid', () => {
     it('Should works with fences: 1 line', () => {
         const input = 'Prefix\n```some code there\n```\nPostfix';
         const sourcemap = new SourceMap(input);
-        liquidSnippet(input, vars, testFn, {sourcemap});
+        liquidSnippet(input, vars, sourcemap);
 
         expect(sourcemap.dump()).toEqual(getDefaultSourceMap(4));
     });
@@ -148,7 +149,7 @@ describe('Check source map after liquid', () => {
     it('Should works with fences: inline', () => {
         const input = 'Prefix\n```some code there```\nPostfix';
         const sourcemap = new SourceMap(input);
-        liquidSnippet(input, vars, testFn, {sourcemap});
+        liquidSnippet(input, vars, sourcemap);
 
         expect(sourcemap.dump()).toEqual(getDefaultSourceMap(3));
     });

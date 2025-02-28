@@ -1,10 +1,10 @@
+import type {LiquidContext} from './types';
 import type {SourceMap} from './sourcemap';
 
 import {bold} from 'chalk';
 
-import {log} from './log';
-import {evalExp} from './evaluation';
-import {tagLine, variable} from './lexical';
+import {tagLine, variable} from './syntax/lexical';
+import {evaluate} from './syntax/evaluate';
 import {getPreparedLeftContent} from './utils';
 
 import {liquidSnippet} from './index';
@@ -37,26 +37,24 @@ function resourcemap(
     });
 }
 
-type Args2 = {
-    forTag: Tag;
-    vars: Record<string, unknown>;
-    content: string;
-    path?: string;
-    sourcemap?: SourceMap;
-};
-
-function inlineConditions({forTag, vars, content, path, sourcemap}: Args2) {
+function inlineConditions(
+    this: LiquidContext,
+    content: string,
+    vars: Record<string, unknown>,
+    forTag: Tag,
+    sourcemap?: SourceMap,
+) {
     const forTemplate = content.substring(forTag.contentStart, forTag.contentEnd);
 
-    let collection = evalExp(forTag.collectionName, vars);
+    let collection = evaluate.call(this, forTag.collectionName, vars);
     if (!collection || !Array.isArray(collection)) {
         collection = [];
-        log.error(`${bold(forTag.collectionName)} is undefined or not iterable`);
+        this.log.error(`${bold(forTag.collectionName)} is undefined or not iterable`);
     }
 
     const results = collection.map((item) => {
         const newVars = {...vars, [forTag.variableName]: item};
-        return liquidSnippet(forTemplate, newVars, path).replace(/ +$/, '');
+        return liquidSnippet.call(this, forTemplate, newVars).replace(/ +$/, '');
     });
 
     let res = results.join(forTag.multiline ? '\n' : '');
@@ -103,20 +101,19 @@ type Tag = {
     multiline: boolean;
 };
 
-export = function cycles(
-    originInput: string,
+export function applyCycles(
+    this: LiquidContext,
+    input: string,
     vars: Record<string, unknown>,
-    path?: string,
-    settings: {sourcemap?: SourceMap} = {},
+    sourcemap?: SourceMap,
 ) {
-    const {sourcemap} = settings;
+    const {path} = this;
 
     const R_LIQUID = /{%-?(?<for>\s*for[^}]+?)-?%}\n?|\n?{%-?(?<endfor>\s*endfor[^}]+?)-?%}/g;
     const FOR_SYNTAX = new RegExp(`(\\w+)\\s+in\\s+(${variable.source})`);
 
     let match;
     const tagStack: Tag[] = [];
-    let input = originInput;
     let countSkippedInnerTags = 0;
 
     while ((match = R_LIQUID.exec(input))) {
@@ -136,7 +133,9 @@ export = function cycles(
 
                 const matches = args.match(FOR_SYNTAX);
                 if (!matches) {
-                    log.error(`Incorrect syntax in if condition${path ? ` in ${bold(path)}` : ''}`);
+                    this.log.error(
+                        `Incorrect syntax in if condition${path ? ` in ${bold(path)}` : ''}`,
+                    );
                     break;
                 }
 
@@ -161,7 +160,7 @@ export = function cycles(
                 const forTag = tagStack.pop();
 
                 if (!forTag) {
-                    log.error(
+                    this.log.error(
                         `For block must be opened before close${path ? ` in ${bold(path)}` : ''}`,
                     );
                     break;
@@ -170,21 +169,9 @@ export = function cycles(
                 forTag.endPos = R_LIQUID.lastIndex;
                 forTag.contentEnd = match.index;
 
-                const {idx, result} = inlineConditions({
-                    forTag,
-                    vars,
-                    content: input,
-                    path,
-                    sourcemap,
-                });
+                const {idx, result} = inlineConditions.call(this, input, vars, forTag, sourcemap);
                 R_LIQUID.lastIndex = idx;
                 input = result;
-
-                // let lastIndex = R_LIQUID.lastIndex;
-                // if (input[lastIndex] === '\n') {
-                //     lastIndex -= 1;
-                // }
-                // R_LIQUID.lastIndex = lastIndex;
 
                 break;
             }
@@ -192,8 +179,8 @@ export = function cycles(
     }
 
     if (tagStack.length !== 0) {
-        log.error(`For block must be closed${path ? ` in ${bold(path)}` : ''}`);
+        this.log.error(`For block must be closed${path ? ` in ${bold(path)}` : ''}`);
     }
 
     return input;
-};
+}

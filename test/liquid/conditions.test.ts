@@ -1,42 +1,49 @@
+import type {LiquidSettings} from '../../src/transform/types';
+
 import dedent from 'ts-dedent';
 
-import conditions from '../../src/transform/conditions';
+import {logger} from '../../src/transform/utils';
+import {applyConditions} from '../../src/transform/conditions';
+import {createContext} from '../../src/transform';
+
+function conditions(
+    input: string,
+    vars: Record<string, unknown>,
+    settings?: Partial<LiquidSettings>,
+) {
+    const context = createContext(logger(), settings);
+    return applyConditions.call(context, input, vars);
+}
 
 describe('Conditions', () => {
     describe('location', () => {
         test('Should works for if only', () => {
             expect(
-                conditions(
-                    'Prefix{% if user %} Inline if {% endif %}Postfix',
-                    {user: {name: 'Alice'}},
-                    '',
-                ),
+                conditions('Prefix{% if user %} Inline if {% endif %}Postfix', {
+                    user: {name: 'Alice'},
+                }),
             ).toEqual('Prefix Inline if Postfix');
         });
 
         test('should not render text if condition is false', () => {
             expect(
-                conditions('Prefix{% if foo %} Inline if{% endif %} Postfix', {foo: false}, ''),
+                conditions('Prefix{% if foo %} Inline if{% endif %} Postfix', {foo: false}),
             ).toEqual('Prefix Postfix');
         });
 
         test('Should works for if-else: positive', () => {
             expect(
-                conditions(
-                    'Prefix{% if user %} Inline if {% else %} else {% endif %}Postfix',
-                    {user: {name: 'Alice'}},
-                    '',
-                ),
+                conditions('Prefix{% if user %} Inline if {% else %} else {% endif %}Postfix', {
+                    user: {name: 'Alice'},
+                }),
             ).toEqual('Prefix Inline if Postfix');
         });
 
         test('Should works for if-else: negative', () => {
             expect(
-                conditions(
-                    'Prefix{% if yandex %} Inline if {% else %} else {% endif %}Postfix',
-                    {user: {name: 'Alice'}},
-                    '',
-                ),
+                conditions('Prefix{% if yandex %} Inline if {% else %} else {% endif %}Postfix', {
+                    user: {name: 'Alice'},
+                }),
             ).toEqual('Prefix else Postfix');
         });
 
@@ -45,7 +52,6 @@ describe('Conditions', () => {
                 conditions(
                     'Prefix{% if yandex %} Inline if {% elsif user %} else {% endif %}Postfix',
                     {user: {name: 'Alice'}},
-                    '',
                 ),
             ).toEqual('Prefix else Postfix');
         });
@@ -60,7 +66,6 @@ describe('Conditions', () => {
                     Postfix
                 `,
                     {test: true},
-                    '',
                 ),
             ).toEqual(`
                     Prefix
@@ -80,7 +85,6 @@ describe('Conditions', () => {
                     Postfix
                 `,
                     {test: true},
-                    '',
                 ),
             ).toEqual(`
                     Prefix
@@ -100,7 +104,6 @@ describe('Conditions', () => {
                     Postfix
                 `,
                     {test: false},
-                    '',
                 ),
             ).toEqual(`
                     Prefix
@@ -120,7 +123,6 @@ describe('Conditions', () => {
                     {% endif %}
                 `,
                     {test: true},
-                    '',
                 ),
             ).toEqual(`    How are you?\n    How are you?`);
         });
@@ -134,7 +136,6 @@ describe('Conditions', () => {
                         {% if true %}Test{% endif %}
                 `,
                     {},
-                    '',
                 ),
             ).toEqual(`1. list item 1\n\n    Test`);
         });
@@ -150,7 +151,6 @@ describe('Conditions', () => {
                     {% endnote %}
                 `,
                     {},
-                    '',
                 ),
             ).toEqual(dedent`
                 {% note alert %}
@@ -172,7 +172,6 @@ describe('Conditions', () => {
                     {% endnote %}
                 `,
                     {},
-                    '',
                 ),
             ).toEqual(dedent`
                 {% note alert %}
@@ -203,7 +202,6 @@ describe('Conditions', () => {
                     {
                         product: 'A',
                     },
-                    '',
                 ),
             ).toEqual(dedent`
                 Start
@@ -227,7 +225,6 @@ describe('Conditions', () => {
                     {
                         product: 'A',
                     },
-                    '',
                 ),
             ).toEqual(
                 dedent`
@@ -251,7 +248,6 @@ describe('Conditions', () => {
                     {
                         audience: 'other',
                     },
-                    '',
                 ),
             ).toEqual(
                 dedent`
@@ -268,71 +264,57 @@ describe('Conditions', () => {
         describe('Positive', () => {
             test('Should support single value', () => {
                 expect(
-                    conditions(
-                        'Prefix{% if user %} Inline if {% endif %}Postfix',
-                        {user: {name: 'Alice'}},
-                        '',
-                    ),
+                    conditions('Prefix{% if user %} Inline if {% endif %}Postfix', {
+                        user: {name: 'Alice'},
+                    }),
                 ).toEqual('Prefix Inline if Postfix');
             });
 
             test('Should support ==', () => {
                 expect(
-                    conditions(
-                        "Prefix{% if user.name == 'Alice' %} Inline if {% endif %}Postfix",
-                        {user: {name: 'Alice'}},
-                        '',
-                    ),
+                    conditions("Prefix{% if user.name == 'Alice' %} Inline if {% endif %}Postfix", {
+                        user: {name: 'Alice'},
+                    }),
                 ).toEqual('Prefix Inline if Postfix');
             });
 
             test('Should support !=', () => {
                 expect(
-                    conditions(
-                        "Prefix{% if user.name != 'Bob' %} Inline if {% endif %}Postfix",
-                        {user: {name: 'Alice'}},
-                        '',
-                    ),
+                    conditions("Prefix{% if user.name != 'Bob' %} Inline if {% endif %}Postfix", {
+                        user: {name: 'Alice'},
+                    }),
                 ).toEqual('Prefix Inline if Postfix');
             });
 
             test('Should support >=', () => {
                 expect(
-                    conditions(
-                        'Prefix{% if user.age >= 18 %} Inline if {% endif %}Postfix',
-                        {user: {age: 18}},
-                        '',
-                    ),
+                    conditions('Prefix{% if user.age >= 18 %} Inline if {% endif %}Postfix', {
+                        user: {age: 18},
+                    }),
                 ).toEqual('Prefix Inline if Postfix');
             });
 
             test('Should support >', () => {
                 expect(
-                    conditions(
-                        'Prefix{% if user.age > 18 %} Inline if {% endif %}Postfix',
-                        {user: {age: 21}},
-                        '',
-                    ),
+                    conditions('Prefix{% if user.age > 18 %} Inline if {% endif %}Postfix', {
+                        user: {age: 21},
+                    }),
                 ).toEqual('Prefix Inline if Postfix');
             });
 
             test('Should support <=', () => {
                 expect(
-                    conditions(
-                        'Prefix{% if user.age <= 18 %} Inline if {% endif %}Postfix',
-                        {user: {age: 18}},
-                        '',
-                    ),
+                    conditions('Prefix{% if user.age <= 18 %} Inline if {% endif %}Postfix', {
+                        user: {age: 18},
+                    }),
                 ).toEqual('Prefix Inline if Postfix');
             });
 
             test('Should support <', () => {
                 expect(
-                    conditions(
-                        'Prefix{% if user.age < 18 %} Inline if {% endif %}Postfix',
-                        {user: {age: 1}},
-                        '',
-                    ),
+                    conditions('Prefix{% if user.age < 18 %} Inline if {% endif %}Postfix', {
+                        user: {age: 1},
+                    }),
                 ).toEqual('Prefix Inline if Postfix');
             });
 
@@ -341,7 +323,6 @@ describe('Conditions', () => {
                     conditions(
                         'Prefix{% if user and user.age >= 18 %} Inline if {% endif %}Postfix',
                         {user: {age: 18}},
-                        '',
                     ),
                 ).toEqual('Prefix Inline if Postfix');
             });
@@ -351,7 +332,6 @@ describe('Conditions', () => {
                     conditions(
                         'Prefix{% if user.age < 18 or user.age >= 21 %} Inline if {% endif %}Postfix',
                         {user: {age: 21}},
-                        '',
                     ),
                 ).toEqual('Prefix Inline if Postfix');
             });
@@ -363,7 +343,6 @@ describe('Conditions', () => {
                     conditions(
                         'Prefix{% if yandex %} Inline if {% else %} else {% endif %}Postfix',
                         {user: {name: 'Alice'}},
-                        '',
                     ),
                 ).toEqual('Prefix else Postfix');
             });
@@ -373,7 +352,6 @@ describe('Conditions', () => {
                     conditions(
                         "Prefix{% if user.name == 'Alice' %} Inline if {% else %} else {% endif %}Postfix",
                         {user: {name: 'Bob'}},
-                        '',
                     ),
                 ).toEqual('Prefix else Postfix');
             });
@@ -383,7 +361,6 @@ describe('Conditions', () => {
                     conditions(
                         "Prefix{% if user.name != 'Bob' %} Inline if {% else %} else {% endif %}Postfix",
                         {user: {name: 'Bob'}},
-                        '',
                     ),
                 ).toEqual('Prefix else Postfix');
             });
@@ -393,7 +370,6 @@ describe('Conditions', () => {
                     conditions(
                         'Prefix{% if user.age >= 18 %} Inline if {% else %} else {% endif %}Postfix',
                         {user: {age: 1}},
-                        '',
                     ),
                 ).toEqual('Prefix else Postfix');
             });
@@ -403,7 +379,6 @@ describe('Conditions', () => {
                     conditions(
                         'Prefix{% if user.age > 18 %} Inline if {% else %} else {% endif %}Postfix',
                         {user: {age: 1}},
-                        '',
                     ),
                 ).toEqual('Prefix else Postfix');
             });
@@ -413,7 +388,6 @@ describe('Conditions', () => {
                     conditions(
                         'Prefix{% if user.age <= 18 %} Inline if {% else %} else {% endif %}Postfix',
                         {user: {age: 21}},
-                        '',
                     ),
                 ).toEqual('Prefix else Postfix');
             });
@@ -423,7 +397,6 @@ describe('Conditions', () => {
                     conditions(
                         'Prefix{% if user.age < 18 %} Inline if {% else %} else {% endif %}Postfix',
                         {user: {age: 21}},
-                        '',
                     ),
                 ).toEqual('Prefix else Postfix');
             });
@@ -433,7 +406,6 @@ describe('Conditions', () => {
                     conditions(
                         'Prefix{% if user and user.age >= 18 %} Inline if {% else %} else {% endif %}Postfix',
                         {user: {age: 1}},
-                        '',
                     ),
                 ).toEqual('Prefix else Postfix');
             });
@@ -444,7 +416,6 @@ describe('Conditions', () => {
                         'Prefix{% if user.age < 18 or user.age >= 21 %} Inline if {% else %} else ' +
                             '{% endif %}Postfix',
                         {user: {age: 20}},
-                        '',
                     ),
                 ).toEqual('Prefix else Postfix');
             });
@@ -456,8 +427,7 @@ describe('Conditions', () => {
                     conditions(
                         'Prefix{% if name != "test" %} Inline if {% endif %}Postfix',
                         {user: {name: 'Alice'}},
-                        '',
-                        {strict: true},
+                        {conditions: 'strict'},
                     ),
                 ).toEqual('Prefix{% if name != "test" %} Inline if {% endif %}Postfix');
             });
@@ -475,8 +445,7 @@ describe('Conditions', () => {
                             Postfix
                         `,
                         {user: {name: 'Alice'}},
-                        '',
-                        {strict: true},
+                        {conditions: 'strict'},
                     ),
                 ).toEqual(`
                             Prefix
@@ -499,7 +468,6 @@ describe('Conditions', () => {
                         "Prefix{% if user %} Before nested if{% if user.name == 'Alice' %} nested if " +
                             '{% endif %}After nested if {% endif %}Postfix',
                         {user: {name: 'Alice'}},
-                        '',
                     ),
                 ).toEqual('Prefix Before nested if nested if After nested if Postfix');
             });
@@ -510,7 +478,6 @@ describe('Conditions', () => {
                         "Prefix{% if user %} Before nested if {% if user.name == 'Alice' %} nested if " +
                             '{% endif %} After nested if {% endif %}Postfix',
                         {user: {name: 'Bob'}},
-                        '',
                     ),
                 ).toEqual('Prefix Before nested if  After nested if Postfix');
             });
@@ -535,8 +502,7 @@ describe('Conditions', () => {
                             Postfix
                         `,
                         {user: {name: 'Alice'}},
-                        '',
-                        {strict: true},
+                        {conditions: 'strict'},
                     ),
                 ).toEqual(`
                             Prefix
@@ -563,7 +529,6 @@ describe('Conditions', () => {
                     {% endcut %}
                 `,
                         {locale: 'ru'},
-                        '',
                     ),
                 ).toEqual(dedent`
                     {% cut "Title" %}
@@ -585,7 +550,6 @@ describe('Conditions', () => {
                     "Prefix{% if yandex %} if {% elsif user.name == 'Bob' %} Bob " +
                         "{% elsif user.name == 'Alice' %} Alice {% endif %}Postfix",
                     {user: {name: 'Alice'}},
-                    '',
                 ),
             ).toEqual('Prefix Alice Postfix');
         });
@@ -595,7 +559,6 @@ describe('Conditions', () => {
                     "Prefix{% if yandex %} if {% elsif user.name == 'Bob' %} Bob " +
                         "{% elsif user.name == 'Alice' %} Alice {% endif %}Postfix",
                     {user: {name: 'Bob'}},
-                    '',
                 ),
             ).toEqual('Prefix Bob Postfix');
         });

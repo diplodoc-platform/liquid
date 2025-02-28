@@ -1,7 +1,20 @@
+import type {LiquidSettings} from '../../src/transform/types';
+
 import dedent from 'ts-dedent';
 
 import {composeFrontMatter, extractFrontMatter} from '../../src/transform/frontmatter';
-import {liquidDocument} from '../../src/transform';
+import {createContext, liquidDocument as liquid} from '../../src/transform';
+import {logger} from '../../src/transform/utils';
+
+function liquidDocument(
+    input: string,
+    vars: Record<string, unknown>,
+    settings?: Partial<LiquidSettings>,
+) {
+    const context = createContext(logger(), settings);
+    context.path = 'frontmatter.test.ts.md';
+    return liquid.call(context, input, vars);
+}
 
 describe('front matter extract/emplace utility function pair', () => {
     it.each([
@@ -77,7 +90,7 @@ describe('Liquid substitutions in front matter (formerly metadata)', () => {
             # Some content.
         `;
 
-        const liquidProcessed = liquidDocument(content, {var: ''}, 'frontmatter.test.ts.md');
+        const liquidProcessed = liquidDocument(content, {var: ''});
 
         const [frontMatter] = extractFrontMatter(liquidProcessed);
 
@@ -144,7 +157,7 @@ describe('Liquid substitutions in front matter (formerly metadata)', () => {
     ])(
         'should not fail even when variables contain reserved characters ($description)',
         ({content, vars}) => {
-            const liquidProcessed = liquidDocument(content, vars, 'frontmatter.test.ts.md');
+            const liquidProcessed = liquidDocument(content, vars);
 
             expect(liquidProcessed).toMatchSnapshot();
         },

@@ -1,4 +1,16 @@
-import {liquidSnippet} from '../../src/transform';
+import type {LiquidSettings} from '../../src/transform/types';
+
+import {createContext, liquidSnippet as liquid} from '../../src/transform';
+import {logger} from '../../src/transform/utils';
+
+function liquidSnippet(
+    input: string,
+    vars: Record<string, unknown>,
+    settings?: Partial<LiquidSettings>,
+) {
+    const context = createContext(logger(), settings);
+    return liquid.call(context, input, vars);
+}
 
 describe('Substitutions', () => {
     test('Should substitute to inline text', () => {
@@ -16,9 +28,13 @@ describe('Substitutions', () => {
     });
     test('Keep not_var syntax', () => {
         expect(
-            liquidSnippet('Hello not_var{{ user.name }}!', {user: {name: 'Alice'}}, '', {
-                keepNotVar: true,
-            }),
+            liquidSnippet(
+                'Hello not_var{{ user.name }}!',
+                {user: {name: 'Alice'}},
+                {
+                    keepNotVar: true,
+                },
+            ),
         ).toEqual('Hello not_var{{ user.name }}!');
     });
 

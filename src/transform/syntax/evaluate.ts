@@ -1,8 +1,10 @@
-import getObject from './getObject';
-import {log} from './log';
+import type {LiquidContext} from '../types';
+
+import {getObject, logger} from '../utils';
+import {SkippedEvalError} from '../errors';
+
 import * as lexical from './lexical';
-import filters from './filters';
-import {SkippedEvalError} from './errors';
+import * as filters from './filters';
 
 type Scope = Record<string, unknown>;
 
@@ -40,15 +42,16 @@ const operators: Record<string, WithFilter | NoFilter | DotOperator> = {
 
         try {
             if (!parsed) {
-                throw new Error();
+                throw new Error('Liquid parse error.');
             }
+
             const {name, args} = parsed;
 
             return l[name](...args);
         } catch (e) {
             if (!l) {
                 throw new SkippedEvalError(
-                    `Cannot apply the function '${name}' on an undefined variable`,
+                    `Cannot apply the function '${parsed?.name}' on an undefined variable`,
                     exp,
                 );
             }
@@ -91,7 +94,8 @@ const operatorREs = lexical.operators.map(
         ),
 );
 
-export function evalExp(
+export function evaluate(
+    this: LiquidContext | void,
     exp: string,
     scope: Record<string, unknown>,
     strict = false,
@@ -122,8 +126,8 @@ export function evalExp(
                 }
 
                 const op = operators[operator];
-                const l = evalExp(match[1], scope, strict);
-                const r = evalExp(match[3], scope, strict);
+                const l = evaluate(match[1], scope, strict);
+                const r = evaluate(match[3], scope, strict);
 
                 if (l === NoValue || r === NoValue) {
                     return NoValue;
@@ -149,6 +153,8 @@ export function evalExp(
 
         return evalValue(exp, scope, strict);
     } catch (e) {
+        const log = this?.log || logger();
+
         if (e instanceof SkippedEvalError) {
             log.warn(`Skip error: ${e}`);
             return undefined;
@@ -159,6 +165,3 @@ export function evalExp(
 
     return undefined;
 }
-
-export default (exp: string, scope: Record<string, unknown>, strict = false) =>
-    Boolean(evalExp(exp, scope, strict));

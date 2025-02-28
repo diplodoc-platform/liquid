@@ -9,11 +9,3 @@ export function capitalize(input: string) {
 export function escapeMarkdown(input: string) {
     return String(input).replace(/([\\`*_{}[\]()#+\-.!|])/g, '\\$1');
 }
-
-const index = {
-    length,
-    capitalize,
-    escapeMarkdown,
-};
-
-export default index;

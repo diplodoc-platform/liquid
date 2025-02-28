@@ -1,39 +1,46 @@
+import type {LiquidContext} from './types';
+
 import {bold} from 'chalk';
 
-import getObject from './getObject';
-import {log} from './log';
-import ArgvService from './services/argv';
-import {evalExp} from './evaluation';
+import {getObject} from './utils';
 import {
     isSingleVariable,
     isVariable,
     singleVariable as singleVariableRe,
     vars as varsRe,
-} from './lexical';
+} from './syntax/lexical';
+import {evaluate} from './syntax/evaluate';
 
-const substitutions = (str: string, builtVars: Record<string, unknown>, path?: string) => {
-    const {keepNotVar} = ArgvService.getConfig();
+export function applySubstitutions(
+    this: LiquidContext,
+    input: string,
+    vars: Record<string, unknown>,
+) {
+    const {path} = this;
+    const {keepNotVar} = this.settings;
 
-    if (isSingleVariable(str)) {
-        const match = str.match(singleVariableRe);
+    if (isSingleVariable(input)) {
+        const match = input.match(singleVariableRe);
 
         if (!match) {
-            return str;
+            return input;
         }
 
         const trimVarPath = match[1].trim();
-        const value = substituteVariable(trimVarPath, builtVars);
+        const value = substituteVariable.call(this, trimVarPath, vars);
 
         if (value === undefined) {
-            logNotFoundVariable(trimVarPath, path);
+            this.log.warn(
+                `Variable ${bold(trimVarPath)} not found${path ? ` in ${bold(path)}` : ''}`,
+            );
 
-            return str;
+            return input;
         }
 
         return value;
     }
 
-    return str.replace(varsRe, (match, _groupNotVar, flag, groupVar, groupVarValue) => {
+    return input.replace(varsRe, (match, _groupNotVar, flag, groupVar, groupVarValue) => {
         if (flag) {
             return keepNotVar ? _groupNotVar : groupVar;
         }
@@ -44,31 +51,24 @@ const substitutions = (str: string, builtVars: Record<string, unknown>, path?: s
             return groupVar;
         }
 
-        const value = substituteVariable(trimVarPath, builtVars);
+        const value = substituteVariable.call(this, trimVarPath, vars);
 
         if (value === undefined) {
-            logNotFoundVariable(trimVarPath, path);
+            this.log.warn(
+                `Variable ${bold(trimVarPath)} not found${path ? ` in ${bold(path)}` : ''}`,
+            );
 
             return match;
         }
 
         return value;
     });
-};
-
-function logNotFoundVariable(varPath: string, path?: string) {
-    log.warn(`Variable ${bold(varPath)} not found${path ? ` in ${bold(path)}` : ''}`);
 }
 
-function substituteVariable(varPath: string, builtVars: Record<string, unknown>) {
-    let value;
+function substituteVariable(this: LiquidContext, varPath: string, vars: Record<string, unknown>) {
     if (isVariable(varPath)) {
-        value = getObject(varPath, builtVars);
+        return getObject(varPath, vars);
     } else {
-        value = evalExp(varPath, builtVars);
+        return evaluate.call(this, varPath, vars);
     }
-
-    return value;
 }
-
-export = substitutions;

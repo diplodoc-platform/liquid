@@ -1,6 +1,18 @@
+import type {LiquidSettings} from '../../src/transform/types';
+
 import dedent from 'ts-dedent';
 
-import {liquidSnippet} from '../../src/transform';
+import {createContext, liquidSnippet as liquid} from '../../src/transform';
+import {logger} from '../../src/transform/utils';
+
+function liquidSnippet(
+    input: string,
+    vars: Record<string, unknown>,
+    settings?: Partial<LiquidSettings>,
+) {
+    const context = createContext(logger(), settings);
+    return liquid.call(context, input, vars);
+}
 
 const commentsByPage = [
     {
@@ -28,11 +40,7 @@ describe('Cycles', () => {
     describe('location', () => {
         test('Inline for block', () => {
             expect(
-                liquidSnippet(
-                    'Prefix {% for user in users %} {{user}} {% endfor %} Postfix',
-                    vars,
-                    '',
-                ),
+                liquidSnippet('Prefix {% for user in users %} {{user}} {% endfor %} Postfix', vars),
             ).toEqual('Prefix Alice Ivan Petr Postfix');
         });
 
@@ -41,7 +49,6 @@ describe('Cycles', () => {
                 liquidSnippet(
                     'Prefix {% for user1 in users %} {% for user2 in users %} {{user1}}+{{user2}} {% endfor %} {% endfor %} Postfix',
                     vars,
-                    '',
                 ),
             ).toEqual(
                 'Prefix Alice+Alice Alice+Ivan Alice+Petr Ivan+Alice Ivan+Ivan Ivan+Petr Petr+Alice Petr+Ivan Petr+Petr Postfix',
@@ -59,7 +66,6 @@ describe('Cycles', () => {
                     Postfix
                 `,
                     vars,
-                    '',
                 ),
             ).toEqual(dedent`
                 Prefix
@@ -119,7 +125,7 @@ describe('Cycles', () => {
 
                 Postfix
             `;
-            expect(liquidSnippet(input, vars, '')).toEqual(result);
+            expect(liquidSnippet(input, vars)).toEqual(result);
         });
 
         test('Multiline nested for block without indent', () => {
@@ -135,7 +141,6 @@ describe('Cycles', () => {
                     Postfix
                 `,
                     vars,
-                    '',
                 ),
             ).toEqual(dedent`
                 Prefix
@@ -159,7 +164,6 @@ describe('Cycles', () => {
                 liquidSnippet(
                     'Prefix {% for user in users2 %}{% if needCapitalize %} {{user | capitalize}}+{{user2}} {% else %} {{user}} {% endif %}{% endfor %} Postfix',
                     vars,
-                    '',
                 ),
             ).toEqual('Prefix Alice+Alex Ivan+Alex Petr+Alex Postfix');
         });
@@ -171,14 +175,13 @@ describe('Cycles', () => {
                 liquidSnippet(
                     '```\nCode block\n```\n\n {% for user in users %} {{user}} {% endfor %}',
                     vars,
-                    '',
                 ),
             ).toEqual('```\nCode block\n```\n\n Alice Ivan Petr');
         });
 
         test('cycle block in code block', () => {
             expect(
-                liquidSnippet('```\n{% for user in users %} {{user}} {% endfor %}\n```', vars, '', {
+                liquidSnippet('```\n{% for user in users %} {{user}} {% endfor %}\n```', vars, {
                     conditionsInCode: true,
                 }),
             ).toEqual('```\nAlice Ivan Petr\n```');

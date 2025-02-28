@@ -1,10 +1,10 @@
+import type {LiquidContext} from './types';
 import type {SourceMap} from './sourcemap';
 
 import {bold} from 'chalk';
 
-import {log} from './log';
-import {NoValue, evalExp} from './evaluation';
-import {tagLine} from './lexical';
+import {tagLine} from './syntax/lexical';
+import {NoValue, evaluate} from './syntax/evaluate';
 
 interface SourcePoint {
     start: number;
@@ -185,15 +185,17 @@ class IfTag implements SourcePoint {
 }
 
 function inlineConditions(
+    this: LiquidContext,
     content: string,
-    ifTag: IfTag,
     vars: Record<string, unknown>,
-    strict: boolean,
+    ifTag: IfTag,
 ) {
+    const {conditions} = this.settings;
+
     let ifCon = null;
 
     for (const condition of ifTag) {
-        const value = evalExp(condition.expr, vars, strict);
+        const value = evaluate.call(this, condition.expr, vars, conditions === 'strict');
 
         if (condition.expr && value === NoValue) {
             return {
@@ -222,16 +224,13 @@ function inlineConditions(
     };
 }
 
-export = function conditions(
+export function applyConditions(
+    this: LiquidContext,
     input: string,
     vars: Record<string, unknown>,
-    path?: string,
-    settings: {
-        sourcemap?: SourceMap;
-        strict?: boolean;
-    } = {},
+    sourcemap?: SourceMap,
 ) {
-    const {sourcemap, strict = false} = settings;
+    const {path} = this;
     const tagStack: IfTag[] = [];
 
     // Consumes all between curly braces
@@ -273,7 +272,7 @@ export = function conditions(
 
                 if (!ifTag) {
                     // TODO(3y3): make lint rule
-                    log.error(
+                    this.log.error(
                         `If block must be opened before close${path ? ` in ${bold(path)}` : ''}`,
                     );
                     break;
@@ -281,7 +280,7 @@ export = function conditions(
 
                 ifTag.closeCondition(match[1], match.index);
 
-                const {result, lastIndex, ifCon} = inlineConditions(input, ifTag, vars, strict);
+                const {result, lastIndex, ifCon} = inlineConditions.call(this, input, vars, ifTag);
 
                 if (sourcemap) {
                     resourcemap(input, ifTag, ifCon, sourcemap);
@@ -300,8 +299,8 @@ export = function conditions(
     }
 
     if (tagStack.length !== 0) {
-        log.error(`Condition block must be closed${path ? ` in ${bold(path)}` : ''}`);
+        this.log.error(`Condition block must be closed${path ? ` in ${bold(path)}` : ''}`);
     }
 
     return input;
-};
+}
