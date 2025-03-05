@@ -27,7 +27,7 @@ const unescapeLiquid = (escapedContent: string): string =>
     escapedContent.replace(/\(\({{/g, '{{').replace(/}}\)\)/g, '}}');
 
 const matchMetadata = (content: string) => {
-    const rx = /^(?<open>[-]{3,}\r?\n)(?<meta>[\s\S]+?)(?<close>\r?\n[-]{3,}(?:\r?\n|$))/;
+    const rx = /^(?<open>[-]{3,} *\r?\n)(?<meta>[\s\S]+?)(?<close>\r?\n[-]{3,}(?: *\r?\n|$))/;
     const match = rx.exec(content);
 
     if (!match) {
@@ -37,7 +37,10 @@ const matchMetadata = (content: string) => {
     return match.groups as {open: string; meta: string; close: string};
 };
 
-export const extractFrontMatter = (content: string): [FrontMatter, string, string] => {
+export const extractFrontMatter = (
+    content: string,
+    options = {},
+): [FrontMatter, string, string] => {
     const matches = matchMetadata(content);
 
     if (matches) {
@@ -46,7 +49,7 @@ export const extractFrontMatter = (content: string): [FrontMatter, string, strin
         const strippedContent = content.slice(rawMeta.length);
 
         return [
-            cloneDeepWith(load(escapeLiquid(meta)) as FrontMatter, (v) =>
+            cloneDeepWith(load(escapeLiquid(meta), options) as FrontMatter, (v) =>
                 typeof v === 'string' ? unescapeLiquid(v) : undefined,
             ),
             strippedContent,

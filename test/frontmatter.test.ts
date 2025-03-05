@@ -43,6 +43,12 @@ describe('front matter extract/emplace utility function pair', () => {
         # Content.
         `,
         dedent`
+        ---
+        prop: value
+        ---
+        # Content.
+        `,
+        dedent`
         # Content.
         `,
         dedent`
