@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/diplodoc-platform/liquid/compare/v1.1.3...v1.2.0) (2025-03-05)
+
+
+### Features
+
+* Add options to extractFrontmatter util ([2a50fb9](https://github.com/diplodoc-platform/liquid/commit/2a50fb9fc92802ff9470004e18f087bce15b2443))
+
 ## [1.1.3](https://github.com/diplodoc-platform/liquid/compare/v1.1.2...v1.1.3) (2025-02-28)
 
 
