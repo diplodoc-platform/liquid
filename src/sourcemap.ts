@@ -34,24 +34,69 @@ type SourceMapTxFlow = {
 };
 
 export class SourceMap {
-    private map: number[] = [];
+    private patches: Function[] = [];
+
+    private size: number;
 
     constructor(content: string) {
-        this.map = this.lines(content)
-            .map((_, index) => index)
-            .slice(1);
+        this.size = this.lines(content).length;
     }
 
     dump() {
-        const dump: Record<string, string> = {};
+        let lazy: Record<string, string> | null = null;
+        const init = (): Record<string, string> => {
+            if (lazy === null) {
+                const map = new Array(this.size);
+                for (let index = 0; index < this.size - 1; index++) {
+                    map[index] = index + 1;
+                }
 
-        for (const [index, value] of Object.entries(this.map)) {
-            if (value > 0) {
-                dump[String(value)] = String(Number(index) + 1);
+                this.patches.forEach((patch) => patch(map));
+
+                lazy = {};
+
+                for (const [index, value] of Object.entries(map)) {
+                    if (value > 0) {
+                        lazy[String(value)] = String(Number(index) + 1);
+                    }
+                }
             }
-        }
 
-        return dump;
+            // TODO: thisk about this
+            // Promise.resolve().then(() => lazy = null);
+
+            return lazy;
+        };
+
+        return new Proxy(
+            {},
+            {
+                get: (_target, prop) => {
+                    return init()[prop as string];
+                },
+
+                has: (_target, prop) => {
+                    return prop in init();
+                },
+
+                ownKeys(_target: {}): ArrayLike<string> {
+                    return Object.keys(init());
+                },
+
+                getOwnPropertyDescriptor(
+                    _target: {},
+                    prop: string,
+                ): PropertyDescriptor | undefined {
+                    const map = init();
+
+                    if (prop in map) {
+                        return {configurable: true, enumerable: true, value: map[prop as string]};
+                    }
+
+                    return undefined;
+                },
+            },
+        );
     }
 
     delete(start: number, content: string) {
@@ -64,40 +109,42 @@ export class SourceMap {
     }
 
     patch(tx: Partial<SourceMapTx>) {
-        const flow = {
-            offset: 0,
-        };
+        this.patches.push((map: number[]) => {
+            const flow = {
+                offset: 0,
+            };
 
-        const del = (tx.delete || []).map(actors.delete);
-        const ofs = (tx.offset || []).map(actors.offset);
-        (tx.replace || []).forEach(([start, source, result]) => {
-            const sl = this.lines(source).length - 1;
-            const rl = this.lines(result).length - 1;
-            const offset = rl - sl;
+            const del = (tx.delete || []).map(actors.delete);
+            const ofs = (tx.offset || []).map(actors.offset);
+            (tx.replace || []).forEach(([start, source, result]) => {
+                const sl = this.lines(source).length - 1;
+                const rl = this.lines(result).length - 1;
+                const offset = rl - sl;
 
-            del.push(
-                actors.delete({
-                    start: start + 1,
-                    end: start + sl,
-                }),
-            );
+                del.push(
+                    actors.delete({
+                        start: start + 1,
+                        end: start + sl,
+                    }),
+                );
 
-            ofs.push(actors.offset([start + 1, sl - 1 + offset]));
+                ofs.push(actors.offset([start + 1, sl - 1 + offset]));
+            });
+
+            const patches = [...del, ...ofs];
+
+            for (let index = 0; index < map.length; index++) {
+                const patched = patches.reduce((value, patch) => {
+                    if (value === -1) {
+                        return value;
+                    }
+
+                    return patch(value, flow);
+                }, map[index]);
+
+                map[index] = patched === -1 ? patched : patched + flow.offset;
+            }
         });
-
-        const patches = [...del, ...ofs];
-
-        for (let index = 0; index < this.map.length; index++) {
-            const patched = patches.reduce((value, patch) => {
-                if (value === -1) {
-                    return value;
-                }
-
-                return patch(value, flow);
-            }, this.map[index]);
-
-            this.map[index] = patched === -1 ? patched : patched + flow.offset;
-        }
     }
 
     lines(content: string) {
@@ -112,14 +159,6 @@ export class SourceMap {
         lines.push(content.length + 1);
 
         return lines;
-    }
-
-    origin(line: string | number) {
-        if (!this.map.length) {
-            return Number(line);
-        }
-
-        return this.map[Number(line) - 1];
     }
 
     location(from: number, to: number, lines: number[], offset = 0): Point {
