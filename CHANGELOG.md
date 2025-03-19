@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/diplodoc-platform/liquid/compare/v1.2.0...v1.3.0) (2025-03-19)
+
+
+### Features
+
+* Lazy compute sourcemap ([13e02f8](https://github.com/diplodoc-platform/liquid/commit/13e02f869bbcf62ba85ad561ddf5d0c5ef896803))
+
 ## [1.2.0](https://github.com/diplodoc-platform/liquid/compare/v1.1.3...v1.2.0) (2025-03-05)
 
 
