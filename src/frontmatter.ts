@@ -48,8 +48,14 @@ export const extractFrontMatter = (
         const rawMeta = open + meta + close;
         const strippedContent = content.slice(rawMeta.length);
 
+        const loadedData = load(escapeLiquid(meta), options) as FrontMatter;
+
+        if (!loadedData) {
+            return [{}, content, rawMeta];
+        }
+
         return [
-            cloneDeepWith(load(escapeLiquid(meta), options) as FrontMatter, (v) =>
+            cloneDeepWith(loadedData, (v) =>
                 typeof v === 'string' ? unescapeLiquid(v) : undefined,
             ),
             strippedContent,
