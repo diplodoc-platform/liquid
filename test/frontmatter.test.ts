@@ -82,6 +82,18 @@ describe('front matter extract/emplace utility function pair', () => {
 
         expect(frontMatter).toMatchObject({prop: '{{ wouldbreak }}'});
     });
+
+    it('is able to handle YAML without props', () => {
+        const content = dedent`
+        ---
+        # comment 1
+        ---
+        `;
+
+        const [frontMatter] = extractFrontMatter(content);
+
+        expect(frontMatter).toMatchObject({});
+    });
 });
 
 describe('Liquid substitutions in front matter (formerly metadata)', () => {
