@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/diplodoc-platform/liquid/compare/v1.3.0...v1.3.1) (2025-05-14)
+
+
+### Bug Fixes
+
+* extractFrontMatter returns undefined if it receive metadata with only a comment ([2ffdc0e](https://github.com/diplodoc-platform/liquid/commit/2ffdc0eeac554f33473e40759982f47cc8789b7b))
+
 ## [1.3.0](https://github.com/diplodoc-platform/liquid/compare/v1.2.0...v1.3.0) (2025-03-19)
 
 
