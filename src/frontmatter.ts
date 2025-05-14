@@ -51,7 +51,7 @@ export const extractFrontMatter = (
         const loadedData = load(escapeLiquid(meta), options) as FrontMatter;
 
         if (!loadedData) {
-            return [{}, content, rawMeta];
+            return [{}, strippedContent, rawMeta];
         }
 
         return [
