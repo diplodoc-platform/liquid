@@ -11,7 +11,7 @@ import {codeUtils} from './utils';
 
 export type {LiquidContext} from './types';
 
-export {evaluate} from './syntax/evaluate';
+export {evaluate, NoValue} from './syntax/evaluate';
 export {SourceMap} from './sourcemap';
 export {composeFrontMatter, extractFrontMatter} from './frontmatter';
 
