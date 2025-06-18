@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.2](https://github.com/diplodoc-platform/liquid/compare/v1.3.1...v1.3.2) (2025-06-18)
+
+
+### Bug Fixes
+
+* add NoValue export ([37f42d2](https://github.com/diplodoc-platform/liquid/commit/37f42d28b601d8d22aa4444923b89505054f747d))
+* bump setup-node action ([4445d07](https://github.com/diplodoc-platform/liquid/commit/4445d07f28676a1dbfb257902bad3f9c2a9266ba))
+
 ## [1.3.1](https://github.com/diplodoc-platform/liquid/compare/v1.3.0...v1.3.1) (2025-05-14)
 
 
