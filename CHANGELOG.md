@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.3](https://github.com/diplodoc-platform/liquid/compare/v1.3.2...v1.3.3) (2025-09-03)
+
+
+### Bug Fixes
+
+* add keepConditionSyntaxOnTrue option ([83da29e](https://github.com/diplodoc-platform/liquid/commit/83da29ed5022d360ec2d2e4e39b319c05a5af005))
+
 ## [1.3.2](https://github.com/diplodoc-platform/liquid/compare/v1.3.1...v1.3.2) (2025-06-18)
 
 
