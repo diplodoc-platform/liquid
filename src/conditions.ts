@@ -52,9 +52,9 @@ function headLinebreak(raw: string) {
 }
 
 function tailLinebreak(raw: string) {
-    const match = raw.match(/.*}(\s*\n)$/);
+    const match = raw.match(/.*}(\s*\r?\n)$/);
 
-    return match ? match[1] : '';
+    return match ? match[1].replace(/\r\n/g, '\n') : '';
 }
 
 function trimResult(content: string, ifTag: IfTag, ifCon: IfCondition | null) {
@@ -238,7 +238,7 @@ export function applyConditions(
 
     // Consumes all between curly braces
     // and all closest upon to first linebreak before and after braces.
-    const R_LIQUID = /((?:\n[\t ]*)?{%-?([\s\S]*?)-?%}(?:[\t ]*\n)?)/g;
+    const R_LIQUID = /((?:\r?\n[\t ]*)?{%-?([\s\S]*?)-?%}(?:[\t ]*\r?\n)?)/g;
 
     let match;
     while ((match = R_LIQUID.exec(input)) !== null) {
