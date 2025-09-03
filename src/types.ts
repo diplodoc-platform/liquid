@@ -7,6 +7,7 @@ export type Logger = {
 export type LiquidSettings = {
     conditions?: boolean | 'strict';
     conditionsInCode?: boolean;
+    keepConditionSyntaxOnTrue?: boolean;
     cycles?: boolean;
     substitutions?: boolean;
     keepNotVar?: boolean;
