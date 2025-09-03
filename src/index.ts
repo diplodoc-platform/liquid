@@ -67,7 +67,9 @@ export function liquidDocument(
     vars: Record<string, unknown>,
     sourcemap?: SourceMap,
 ): string {
-    const [frontMatter, strippedContent, rawFrontmatter] = extractFrontMatter(input);
+    const normalizedInput = input.replace(/\r\n/g, '\n');
+
+    const [frontMatter, strippedContent, rawFrontmatter] = extractFrontMatter(normalizedInput);
 
     const liquidedFrontMatter = liquidJson.call(this, frontMatter, vars);
     const composedFrontmatter = composeFrontMatter(liquidedFrontMatter);
