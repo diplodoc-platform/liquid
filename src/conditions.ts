@@ -190,14 +190,17 @@ function inlineConditions(
     vars: Record<string, unknown>,
     ifTag: IfTag,
 ) {
-    const {conditions = true} = this.settings;
+    const {conditions = true, keepConditionSyntaxOnTrue = false} = this.settings;
 
     let ifCon = null;
 
     for (const condition of ifTag) {
         const value = evaluate.call(this, condition.expr, vars, conditions === 'strict');
 
-        if (condition.expr && value === NoValue) {
+        if (
+            condition.expr &&
+            (value === NoValue || (keepConditionSyntaxOnTrue && value === true))
+        ) {
             return {
                 result: content,
                 // Fix offset for next matches.

@@ -562,5 +562,18 @@ describe('Conditions', () => {
                 ),
             ).toEqual('Prefix Bob Postfix');
         });
+        test('Should save conditions syntax if it resolves to true with specified keepConditionSyntaxOnTrue setting', () => {
+            expect(
+                conditions(
+                    "Prefix{% if yandex %} if {% elsif user.name == 'Bob' %} Bob " +
+                        "{% elsif user.name == 'Alice' %} Alice {% endif %}Postfix",
+                    {user: {name: 'Bob'}},
+                    {keepConditionSyntaxOnTrue: true},
+                ),
+            ).toEqual(
+                "Prefix{% if yandex %} if {% elsif user.name == 'Bob' %} Bob " +
+                    "{% elsif user.name == 'Alice' %} Alice {% endif %}Postfix",
+            );
+        });
     });
 });
