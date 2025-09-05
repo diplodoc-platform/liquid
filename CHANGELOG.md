@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.4](https://github.com/diplodoc-platform/liquid/compare/v1.3.3...v1.3.4) (2025-09-05)
+
+
+### Bug Fixes
+
+* add new line case test ([a609e15](https://github.com/diplodoc-platform/liquid/commit/a609e15405016ef4a1b626641964c7fe3565c7af))
+* new line issue for windows os ([c8daa3c](https://github.com/diplodoc-platform/liquid/commit/c8daa3cbe5580d2e273f0cb7b9650be99709f9cc))
+* run test on different os ([029ab93](https://github.com/diplodoc-platform/liquid/commit/029ab93e8a760c97315320486923f02070d00085))
+
 ## [1.3.3](https://github.com/diplodoc-platform/liquid/compare/v1.3.2...v1.3.3) (2025-09-03)
 
 
