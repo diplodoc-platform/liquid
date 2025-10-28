@@ -5,8 +5,8 @@ const doubleQuoted = /"[^"]*"/;
 const quoted = new RegExp(`${singleQuoted.source}|${doubleQuoted.source}`);
 export const quoteBalanced = new RegExp(`(?:${quoted.source}|[^'"])*`);
 
-export const vars = /((not_var)?({{2}([. \w-|(),]+)}{2}))/gm;
-export const singleVariable = /^{{2}([. \w-|(),]+)}{2}$/;
+export const vars = /((not_var)?({{2}([^}]+)}{2}))/gm;
+export const singleVariable = /^{{2}([^}]+)}{2}$/;
 
 // basic types
 const number = /-?\d+\.?\d*|\.?\d+/;
