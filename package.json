@@ -11,6 +11,9 @@
     "tools",
     "generator"
   ],
+  "engines": {
+    "npm": ">=11.5.1"
+  },
   "homepage": "https://github.com/diplodoc-platform/liquid#readme",
   "bugs": {
     "url": "https://github.com/diplodoc-platform/liquid/issues"
