@@ -5,6 +5,7 @@ import chalk from 'chalk';
 
 import {tagLine} from './syntax/lexical';
 import {NoValue, evaluate} from './syntax/evaluate';
+import legacyConditions from './legacyConditions';
 
 interface SourcePoint {
     start: number;
@@ -234,6 +235,11 @@ export function applyConditions(
     sourcemap?: SourceMap,
 ) {
     const {path} = this;
+
+    if (this.settings.legacyConditions) {
+        return legacyConditions.call(this, input, vars);
+    }
+
     const tagStack: IfTag[] = [];
 
     // Consumes all between curly braces
