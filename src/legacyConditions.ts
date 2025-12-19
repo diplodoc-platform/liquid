@@ -85,14 +85,13 @@ function inlineConditions(this: LiquidContext, {ifTag, vars, content, match, las
 type Elses = {startPos: number; raw: string; condition?: string};
 
 type Tag = {
-    isOpen: Boolean;
     condition: string;
     startPos: number;
     ifRaw: string;
     elses: Elses[];
 };
 
-export = function legacyConditions(
+export default function legacyConditions(
     this: LiquidContext,
     originInput: string,
     vars: Record<string, unknown>,
@@ -119,7 +118,6 @@ export = function legacyConditions(
         switch (type) {
             case 'if':
                 tagStack.push({
-                    isOpen: true,
                     condition: args,
                     startPos: match.index,
                     ifRaw: match[1],
@@ -169,4 +167,4 @@ export = function legacyConditions(
     }
 
     return input;
-};
+}
