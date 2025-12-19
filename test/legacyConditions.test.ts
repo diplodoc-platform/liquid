@@ -1038,4 +1038,373 @@ describe('LegacyConditions', () => {
             });
         });
     });
+
+    describe('Multiline tests without dedent', () => {
+        test('Should works for multiple if block', () => {
+            expect(
+                conditions(
+                    `
+                    Prefix
+                    {% if test %}
+                        How are you?
+                    {% endif %}
+                    Postfix
+                `,
+                    {test: true},
+                ),
+            ).toEqual(`
+                    Prefix
+                                            How are you?
+                    Postfix
+                `);
+        });
+
+        test('Multiple if block with indent', () => {
+            expect(
+                conditions(
+                    `
+                    Prefix
+                        {% if test %}
+                        How are you?
+                        {% endif %}
+                    Postfix
+                `,
+                    {test: true},
+                ),
+            ).toEqual(`
+                    Prefix
+                                                How are you?
+                    Postfix
+                `);
+        });
+
+        test('Multiple if block with indent and negative condition', () => {
+            expect(
+                conditions(
+                    `
+                    Prefix
+                    {% if test %}
+                        How are you?
+                    {% endif %}
+                    Postfix
+                `,
+                    {test: false},
+                ),
+            ).toEqual(`
+                    Prefix
+                    Postfix
+                `);
+        });
+
+        test('Two multiple if blocks in a row', () => {
+            expect(
+                conditions(
+                    `{% if test %}
+    How are you?
+{% endif %}
+{% if test %}
+    How are you?
+{% endif %}`,
+                    {test: true},
+                ),
+            ).toEqual(`    How are you?
+    How are you?`);
+        });
+
+        test('Condition inside the list item content', () => {
+            expect(
+                conditions(
+                    `1. list item 1
+
+    {% if true %}Test{% endif %}`,
+                    {},
+                ),
+            ).toEqual(`1. list item 1
+
+    Test`);
+        });
+
+        test('Condition inside the note block (at start)', () => {
+            expect(
+                conditions(
+                    `{% note alert %}
+
+{% if locale == 'ru' %}You can't use the public geofence names.{% endif %}Test
+
+{% endnote %}`,
+                    {},
+                ),
+            ).toEqual(`{% note alert %}
+
+Test
+
+{% endnote %}`);
+        });
+
+        test('Condition inside the note block (at end)', () => {
+            expect(
+                conditions(
+                    `{% note alert %}
+
+Test{% if locale == 'ru' %}You can't use the public geofence names.{% endif %}
+
+{% endnote %}`,
+                    {},
+                ),
+            ).toEqual(`{% note alert %}
+
+Test
+
+{% endnote %}`);
+        });
+
+        test('Falsy block condition after truthly block condition', () => {
+            expect(
+                conditions(
+                    `Start
+
+Before
+{% if product == "A" %}
+Truthly
+{% endif %}
+{% if product == "B" %}
+Falsy
+{% endif %}
+After
+
+End`,
+                    {
+                        product: 'A',
+                    },
+                ),
+            ).toEqual(`Start
+
+Before
+Truthly
+After
+
+End`);
+        });
+
+        test('Falsy inline condition after truthly inline condition', () => {
+            expect(
+                conditions(
+                    `{% if product == "A" %}A{% endif %}
+{% if product == "B" %}B{% endif %}
+C`,
+                    {
+                        product: 'A',
+                    },
+                ),
+            ).toEqual(`A
+C`);
+        });
+
+        test('Around other curly braced structures', () => {
+            expect(
+                conditions(
+                    `* Title:
+    * {% include [A](./A.md) %}
+{% if audience != "internal" %}
+* {% include [B](./B.md) %}
+{% endif %}
+* {% include [C](./C.md) %}`,
+                    {
+                        audience: 'other',
+                    },
+                ),
+            ).toEqual(`* Title:
+    * {% include [A](./A.md) %}
+* {% include [B](./B.md) %}
+* {% include [C](./C.md) %}`);
+        });
+
+        test('Condition inside the cut block with multiple linebreaks', () => {
+            expect(
+                conditions(
+                    `{% cut "Title" %}
+
+{% if locale == 'ru' %}
+
+a
+
+{% endif %}
+
+{% endcut %}`,
+                    {locale: 'ru'},
+                ),
+            ).toEqual(`{% cut "Title" %}
+
+
+a
+
+
+{% endcut %}`);
+        });
+
+        test('Should handle long elsif chain with all false conditions', () => {
+            expect(
+                conditions(
+                    `{% if a == 1 %}
+A
+{% elsif b == 2 %}
+B
+{% elsif c == 3 %}
+C
+{% elsif d == 4 %}
+D
+{% else %}
+None
+{% endif %}`,
+                    {a: 0, b: 0, c: 0, d: 0},
+                ),
+            ).toEqual('None');
+        });
+
+        test('Should handle elsif chain with middle condition true', () => {
+            expect(
+                conditions(
+                    `{% if a == 1 %}
+A
+{% elsif b == 2 %}
+B
+{% elsif c == 3 %}
+C
+{% elsif d == 4 %}
+D
+{% endif %}`,
+                    {a: 0, b: 0, c: 3, d: 0},
+                ),
+            ).toEqual('C');
+        });
+
+        test('Should handle 3 levels of nesting', () => {
+            expect(
+                conditions(
+                    `{% if level1 %}
+L1
+{% if level2 %}
+L2
+{% if level3 %}
+L3
+{% endif %}
+{% endif %}
+{% endif %}`,
+                    {level1: true, level2: true, level3: true},
+                ),
+            ).toEqual('L1\nL2\nL3');
+        });
+
+        test('Should handle nested conditions with mixed results', () => {
+            expect(
+                conditions(
+                    `{% if outer %}
+Outer
+{% if inner %}
+Inner true
+{% else %}
+Inner false
+{% endif %}
+{% endif %}`,
+                    {outer: true, inner: false},
+                ),
+            ).toEqual('Outer\nInner false');
+        });
+
+        test('Should handle nested elsif chains', () => {
+            expect(
+                conditions(
+                    `{% if a %}
+{% if b %}
+AB
+{% elsif c %}
+AC
+{% endif %}
+{% elsif d %}
+D
+{% endif %}`,
+                    {a: true, b: false, c: true, d: false},
+                ),
+            ).toEqual('AC');
+        });
+
+        test('Should handle multiple consecutive newlines in if block', () => {
+            expect(
+                conditions(
+                    `{% if test %}
+
+
+content
+
+
+{% endif %}`,
+                    {test: true},
+                ),
+            ).toEqual('\n\ncontent\n\n');
+        });
+
+        test('Should handle multiple independent if blocks', () => {
+            expect(
+                conditions(
+                    `{% if a %}A{% endif %}
+{% if b %}B{% endif %}
+{% if c %}C{% endif %}`,
+                    {a: true, b: false, c: true},
+                ),
+            ).toEqual('A\nC');
+        });
+
+        test('Should handle conditions with shared variables', () => {
+            expect(
+                conditions(
+                    `{% if x > 5 %}Greater{% endif %}
+{% if x < 10 %}Less{% endif %}
+{% if x == 7 %}Equal{% endif %}`,
+                    {x: 7},
+                ),
+            ).toEqual('Greater\nLess\nEqual');
+        });
+
+        test('Should preserve exact indentation in true branch', () => {
+            const input = `{% if test %}
+    Line 1
+        Line 2
+            Line 3
+{% endif %}`;
+            expect(conditions(input, {test: true})).toEqual(
+                '    Line 1\n        Line 2\n            Line 3',
+            );
+        });
+
+        test('Should handle mixed content types', () => {
+            expect(
+                conditions(
+                    `{% if test %}
+# Header
+
+Paragraph with **bold** and *italic*.
+
+- List item 1
+- List item 2
+{% endif %}`,
+                    {test: true},
+                ),
+            ).toEqual(
+                '# Header\n\nParagraph with **bold** and *italic*.\n\n- List item 1\n- List item 2',
+            );
+        });
+
+        test('Should preserve code blocks in content', () => {
+            expect(
+                conditions(
+                    `{% if test %}
+\`\`\`javascript
+const x = 1;
+\`\`\`
+{% endif %}`,
+                    {test: true},
+                ),
+            ).toEqual('```javascript\nconst x = 1;\n```');
+        });
+    });
 });
