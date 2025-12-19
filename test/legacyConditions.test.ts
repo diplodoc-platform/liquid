@@ -124,7 +124,8 @@ describe('LegacyConditions', () => {
                 `,
                     {test: true},
                 ),
-            ).toEqual(`    How are you?\n    How are you?`);
+            ).toEqual(`    How are you?
+    How are you?`);
         });
 
         test('Condition inside the list item content', () => {
@@ -137,7 +138,9 @@ describe('LegacyConditions', () => {
                 `,
                     {},
                 ),
-            ).toEqual(`1. list item 1\n\n    Test`);
+            ).toEqual(`1. list item 1
+
+    Test`);
         });
 
         test('Condition inside the note block (at start)', () => {
@@ -576,13 +579,22 @@ describe('LegacyConditions', () => {
                         `,
                         {test: true},
                     ),
-                ).toEqual('\n\ncontent\n\n');
+                ).toEqual(`
+
+content
+
+`);
             });
 
             test('Should handle tabs and spaces mixed in indentation', () => {
                 expect(
-                    conditions('{% if test %}\n\t  \tcontent\n{% endif %}', {test: true}),
-                ).toEqual('\t  \tcontent');
+                    conditions(
+                        `{% if test %}
+    content
+{% endif %}`,
+                        {test: true},
+                    ),
+                ).toEqual(`    content`);
             });
 
             test('Should preserve trailing whitespace in content', () => {
@@ -671,7 +683,9 @@ describe('LegacyConditions', () => {
                         `,
                         {level1: true, level2: true, level3: true},
                     ),
-                ).toEqual('L1\nL2\nL3');
+                ).toEqual(`L1
+L2
+L3`);
             });
 
             test('Should handle nested conditions with mixed results', () => {
@@ -689,7 +703,8 @@ describe('LegacyConditions', () => {
                         `,
                         {outer: true, inner: false},
                     ),
-                ).toEqual('Outer\nInner false');
+                ).toEqual(`Outer
+Inner false`);
             });
 
             test('Should handle nested elsif chains', () => {
@@ -853,7 +868,8 @@ describe('LegacyConditions', () => {
                         `,
                         {a: true, b: false, c: true},
                     ),
-                ).toEqual('A\nC');
+                ).toEqual(`A
+C`);
             });
 
             test('Should handle alternating true/false conditions', () => {
@@ -875,7 +891,9 @@ describe('LegacyConditions', () => {
                         `,
                         {x: 7},
                     ),
-                ).toEqual('Greater\nLess\nEqual');
+                ).toEqual(`Greater
+Less
+Equal`);
             });
         });
 
@@ -927,7 +945,9 @@ describe('LegacyConditions', () => {
                     {% endif %}
                 `;
                 expect(conditions(input, {test: true})).toEqual(
-                    '    Line 1\n        Line 2\n            Line 3',
+                    `    Line 1
+        Line 2
+            Line 3`,
                 );
             });
 
@@ -947,7 +967,12 @@ describe('LegacyConditions', () => {
                         {test: true},
                     ),
                 ).toEqual(
-                    '# Header\n\nParagraph with **bold** and *italic*.\n\n- List item 1\n- List item 2',
+                    `# Header
+
+Paragraph with **bold** and *italic*.
+
+- List item 1
+- List item 2`,
                 );
             });
 
@@ -963,7 +988,9 @@ describe('LegacyConditions', () => {
                         `,
                         {test: true},
                     ),
-                ).toEqual('```javascript\nconst x = 1;\n```');
+                ).toEqual(`\`\`\`javascript
+const x = 1;
+\`\`\``);
             });
         });
 
@@ -1292,7 +1319,9 @@ L3
 {% endif %}`,
                     {level1: true, level2: true, level3: true},
                 ),
-            ).toEqual('L1\nL2\nL3');
+            ).toEqual(`L1
+L2
+L3`);
         });
 
         test('Should handle nested conditions with mixed results', () => {
@@ -1308,7 +1337,8 @@ Inner false
 {% endif %}`,
                     {outer: true, inner: false},
                 ),
-            ).toEqual('Outer\nInner false');
+            ).toEqual(`Outer
+Inner false`);
         });
 
         test('Should handle nested elsif chains', () => {
@@ -1340,7 +1370,11 @@ content
 {% endif %}`,
                     {test: true},
                 ),
-            ).toEqual('\n\ncontent\n\n');
+            ).toEqual(`
+
+content
+
+`);
         });
 
         test('Should handle multiple independent if blocks', () => {
@@ -1351,7 +1385,8 @@ content
 {% if c %}C{% endif %}`,
                     {a: true, b: false, c: true},
                 ),
-            ).toEqual('A\nC');
+            ).toEqual(`A
+C`);
         });
 
         test('Should handle conditions with shared variables', () => {
@@ -1362,7 +1397,9 @@ content
 {% if x == 7 %}Equal{% endif %}`,
                     {x: 7},
                 ),
-            ).toEqual('Greater\nLess\nEqual');
+            ).toEqual(`Greater
+Less
+Equal`);
         });
 
         test('Should preserve exact indentation in true branch', () => {
@@ -1372,7 +1409,9 @@ content
             Line 3
 {% endif %}`;
             expect(conditions(input, {test: true})).toEqual(
-                '    Line 1\n        Line 2\n            Line 3',
+                `    Line 1
+        Line 2
+            Line 3`,
             );
         });
 
@@ -1390,7 +1429,12 @@ Paragraph with **bold** and *italic*.
                     {test: true},
                 ),
             ).toEqual(
-                '# Header\n\nParagraph with **bold** and *italic*.\n\n- List item 1\n- List item 2',
+                `# Header
+
+Paragraph with **bold** and *italic*.
+
+- List item 1
+- List item 2`,
             );
         });
 
@@ -1404,7 +1448,9 @@ const x = 1;
 {% endif %}`,
                     {test: true},
                 ),
-            ).toEqual('```javascript\nconst x = 1;\n```');
+            ).toEqual(`\`\`\`javascript
+const x = 1;
+\`\`\``);
         });
     });
 });
