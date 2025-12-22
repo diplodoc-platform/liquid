@@ -124,19 +124,39 @@ export default function legacyConditions(
                     elses: [],
                 });
                 break;
-            case 'else':
-                tagStack[tagStack.length - 1].elses.push({
+            case 'else': {
+                const currentTag = tagStack[tagStack.length - 1];
+
+                if (!currentTag) {
+                    this.logger.error(
+                        `Else block must have a preceding if block${path ? ` in ${chalk.bold(path)}` : ''}`,
+                    );
+                    break;
+                }
+
+                currentTag.elses.push({
                     startPos: match.index,
                     raw: match[1],
                 });
                 break;
-            case 'elsif':
-                tagStack[tagStack.length - 1].elses.push({
+            }
+            case 'elsif': {
+                const currentTag = tagStack[tagStack.length - 1];
+
+                if (!currentTag) {
+                    this.logger.error(
+                        `Elsif block must have a preceding if block${path ? ` in ${chalk.bold(path)}` : ''}`,
+                    );
+                    break;
+                }
+
+                currentTag.elses.push({
                     condition: args,
                     startPos: match.index,
                     raw: match[1],
                 });
                 break;
+            }
             case 'endif': {
                 const ifTag = tagStack.pop();
 

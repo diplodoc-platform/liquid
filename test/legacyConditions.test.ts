@@ -559,10 +559,11 @@ describe('LegacyConditions', () => {
             };
             const context = createContext(mockLogger, {legacyConditions: true});
 
-            // This should cause a runtime error when accessing tagStack[tagStack.length - 1]
-            expect(() => {
-                applyConditions.call(context, '{% else %}content', {});
-            }).toThrow();
+            applyConditions.call(context, '{% else %}content', {});
+
+            expect(mockLogger.error).toHaveBeenCalledWith(
+                expect.stringContaining('Else block must have a preceding if block'),
+            );
         });
 
         test('Should handle elsif without preceding if', () => {
@@ -574,10 +575,11 @@ describe('LegacyConditions', () => {
             };
             const context = createContext(mockLogger, {legacyConditions: true});
 
-            // This should cause a runtime error when accessing tagStack[tagStack.length - 1]
-            expect(() => {
-                applyConditions.call(context, '{% elsif test %}content', {test: true});
-            }).toThrow();
+            applyConditions.call(context, '{% elsif test %}content', {test: true});
+
+            expect(mockLogger.error).toHaveBeenCalledWith(
+                expect.stringContaining('Elsif block must have a preceding if block'),
+            );
         });
 
         test('Should handle else after endif (orphaned else)', () => {
@@ -589,12 +591,13 @@ describe('LegacyConditions', () => {
             };
             const context = createContext(mockLogger, {legacyConditions: true});
 
-            // else after endif should cause runtime error
-            expect(() => {
-                applyConditions.call(context, '{% if test %}content{% endif %}{% else %}orphaned', {
-                    test: true,
-                });
-            }).toThrow();
+            applyConditions.call(context, '{% if test %}content{% endif %}{% else %}orphaned', {
+                test: true,
+            });
+
+            expect(mockLogger.error).toHaveBeenCalledWith(
+                expect.stringContaining('Else block must have a preceding if block'),
+            );
         });
     });
 
