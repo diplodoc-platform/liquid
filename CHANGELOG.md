@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/diplodoc-platform/liquid/compare/v1.3.4...v1.4.0) (2025-12-22)
+
+
+### Features
+
+* add legacyConditions ([#22](https://github.com/diplodoc-platform/liquid/issues/22)) ([5f8b9ec](https://github.com/diplodoc-platform/liquid/commit/5f8b9eca54c348fe74ee59004782beeec43b748d))
+
 ## [1.3.4](https://github.com/diplodoc-platform/liquid/compare/v1.3.3...v1.3.4) (2025-09-05)
 
 
