@@ -11,6 +11,7 @@ export type LiquidSettings = {
     cycles?: boolean;
     substitutions?: boolean;
     keepNotVar?: boolean;
+    legacyConditions?: boolean;
 };
 
 export type LiquidContext = {
