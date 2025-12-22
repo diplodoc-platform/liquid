@@ -549,6 +549,53 @@ describe('LegacyConditions', () => {
             const result = conditions('text {% %} more text', {});
             expect(result).toEqual('text {% %} more text');
         });
+
+        test('Should handle else without preceding if', () => {
+            const mockLogger = {
+                error: jest.fn(),
+                warn: jest.fn(),
+                info: jest.fn(),
+                log: jest.fn(),
+            };
+            const context = createContext(mockLogger, {legacyConditions: true});
+
+            // This should cause a runtime error when accessing tagStack[tagStack.length - 1]
+            expect(() => {
+                applyConditions.call(context, '{% else %}content', {});
+            }).toThrow();
+        });
+
+        test('Should handle elsif without preceding if', () => {
+            const mockLogger = {
+                error: jest.fn(),
+                warn: jest.fn(),
+                info: jest.fn(),
+                log: jest.fn(),
+            };
+            const context = createContext(mockLogger, {legacyConditions: true});
+
+            // This should cause a runtime error when accessing tagStack[tagStack.length - 1]
+            expect(() => {
+                applyConditions.call(context, '{% elsif test %}content', {test: true});
+            }).toThrow();
+        });
+
+        test('Should handle else after endif (orphaned else)', () => {
+            const mockLogger = {
+                error: jest.fn(),
+                warn: jest.fn(),
+                info: jest.fn(),
+                log: jest.fn(),
+            };
+            const context = createContext(mockLogger, {legacyConditions: true});
+
+            // else after endif should cause runtime error
+            expect(() => {
+                applyConditions.call(context, '{% if test %}content{% endif %}{% else %}orphaned', {
+                    test: true,
+                });
+            }).toThrow();
+        });
     });
 
     describe('Edge cases', () => {
