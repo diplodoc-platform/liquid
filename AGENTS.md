@@ -56,14 +56,19 @@ liquid/
 
 ## Tech Stack
 
-- **Language**: TypeScript
-- **Build Tool**: TypeScript Compiler (`tsc`)
-- **Testing**: Jest with `ts-jest`
-- **Linting**: `@diplodoc/lint` (ESLint, Prettier, Stylelint)
-- **Dependencies**:
-  - `chalk` - Terminal string styling for error messages
-  - `js-yaml` - YAML parsing for frontmatter
-  - `lodash` - Utility functions (cloneDeepWith)
+This package follows the standard Diplodoc platform tech stack. See `.agents/dev-infrastructure.md` and `.agents/style-and-testing.md` in the metapackage root for detailed information.
+
+**Package-specific details**:
+
+- **Build Tool**: TypeScript Compiler (`tsc`) - see `tsconfig.transform.json` for build configuration
+- **Testing**: Jest with `ts-jest` (note: Vitest is recommended for new packages, but this package continues to use Jest)
+- **Linting**: `@diplodoc/lint` (ESLint, Prettier, Stylelint) - configured via `lint init`
+
+**Runtime Dependencies**:
+
+- `chalk` - Terminal string styling for error messages
+- `js-yaml` - YAML parsing for frontmatter
+- `lodash` - Utility functions (cloneDeepWith)
 
 ## Public API
 
