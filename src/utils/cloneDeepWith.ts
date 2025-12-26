@@ -31,10 +31,10 @@ export function cloneDeepWith<T>(value: T, customizer: (val: unknown) => unknown
     for (const key in value) {
         if (Object.prototype.hasOwnProperty.call(value, key)) {
             const custom = customizer(value[key]);
-            if (typeof custom !== 'undefined') {
-                cloned[key] = custom as T[Extract<keyof T, string>];
-            } else {
+            if (custom === undefined) {
                 cloned[key] = cloneDeepWith(value[key], customizer);
+            } else {
+                cloned[key] = custom as T[Extract<keyof T, string>];
             }
         }
     }
