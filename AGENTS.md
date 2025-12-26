@@ -13,7 +13,6 @@ A guide for AI coding agents working on the `@diplodoc/liquid` package.
 - Cycle/loop blocks (`{% for item in collection %}...{% endfor %}`)
 - Frontmatter extraction and processing
 - Source map support for debugging
-- Legacy conditions support
 - Custom filters support
 - Code block preservation (handles code blocks without processing Liquid syntax inside)
 
@@ -29,7 +28,6 @@ liquid/
 │   ├── cycles.ts             # Loop/cycle processing
 │   ├── frontmatter.ts         # Frontmatter extraction and composition
 │   ├── sourcemap.ts          # Source map generation for debugging
-│   ├── legacyConditions.ts   # Legacy conditional syntax support
 │   ├── errors.ts             # Error handling utilities
 │   ├── utils.ts              # Utility functions
 │   └── syntax/
@@ -45,7 +43,6 @@ liquid/
 │   ├── substitutions.test.ts
 │   ├── frontmatter.test.ts
 │   ├── functions.test.ts
-│   ├── legacyConditions.test.ts
 │   ├── new-line.test.ts
 │   └── sourcemap.test.ts
 ├── package.json
@@ -184,7 +181,6 @@ The `sourcemap.ts` module tracks:
   cycles?: boolean;                      // Enable/disable cycles
   substitutions?: boolean;               // Enable/disable substitutions
   keepNotVar?: boolean;                  // Keep {{ var }} if variable not found
-  legacyConditions?: boolean;           // Enable legacy condition syntax
 }
 ```
 
@@ -244,7 +240,6 @@ Tests cover:
 - Source map generation
 - Filter functions
 - Edge cases (missing variables, empty collections, etc.)
-- Legacy condition syntax
 
 ## Build System
 
@@ -273,15 +268,13 @@ npm run dev:lib        # Watch mode for development
 
 2. **Source Maps**: Source map support is optional but recommended for debugging. It tracks transformations and helps map output back to source.
 
-3. **Legacy Support**: The package supports legacy condition syntax for backward compatibility. This can be enabled via `legacyConditions` setting.
+3. **Error Handling**: Missing variables are logged as warnings but don't fail processing (unless `keepNotVar` is false and variable is required).
 
-4. **Error Handling**: Missing variables are logged as warnings but don't fail processing (unless `keepNotVar` is false and variable is required).
+4. **Performance**: The package is designed to be fast and lightweight. Avoid adding heavy dependencies or complex processing without justification.
 
-5. **Performance**: The package is designed to be fast and lightweight. Avoid adding heavy dependencies or complex processing without justification.
+5. **YFM Integration**: This package is specifically designed for YFM (Yandex Flavored Markdown) but can be used standalone for any Liquid template processing.
 
-6. **YFM Integration**: This package is specifically designed for YFM (Yandex Flavored Markdown) but can be used standalone for any Liquid template processing.
-
-7. **Testing Framework**: Currently uses Jest. Migration to Vitest is recommended for new packages, but this package continues to use Jest for now.
+6. **Testing Framework**: Currently uses Jest. Migration to Vitest is recommended for new packages, but this package continues to use Jest for now.
 
 ## Development Workflow
 
