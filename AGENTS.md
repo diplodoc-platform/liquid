@@ -2,6 +2,22 @@
 
 A guide for AI coding agents working on the `@diplodoc/liquid` package.
 
+## Common Rules and Standards
+
+**Important**: This package follows common rules and standards defined in the Diplodoc metapackage. When working in metapackage mode, refer to:
+
+- **`.agents/style-and-testing.md`** in the metapackage root for:
+  - Code style guidelines
+  - Commit message format (Conventional Commits)
+  - Pre-commit hooks rules (**CRITICAL**: Never commit with `--no-verify`)
+  - Testing standards
+  - Documentation requirements
+- **`.agents/core.md`** for core concepts
+- **`.agents/monorepo.md`** for workspace and dependency management
+- **`.agents/dev-infrastructure.md`** for build and CI/CD
+
+**Note**: In standalone mode (when this package is used independently), these rules still apply. If you need to reference the full documentation, check the [Diplodoc metapackage repository](https://github.com/diplodoc-platform/diplodoc).
+
 ## Package Overview
 
 `@diplodoc/liquid` is a small and fast implementation of basic Liquid syntax for processing YFM (Yandex Flavored Markdown) documents. It provides template processing capabilities including variable substitutions, conditions, cycles (loops), and frontmatter handling.
@@ -276,6 +292,10 @@ npm run dev:lib        # Watch mode for development
 - Compiled JavaScript: `lib/**/*.js`
 - Type declarations: `lib/**/*.d.ts`
 - Source maps: `lib/**/*.js.map`
+
+## Package-Specific Notes
+
+**For common rules and standards** (code style, commit format, pre-commit hooks, testing, documentation), see the [Common Rules and Standards](#common-rules-and-standards) section above or refer to `.agents/style-and-testing.md` in the Diplodoc metapackage root.
 
 ## Important Notes
 
