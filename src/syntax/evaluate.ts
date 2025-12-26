@@ -63,6 +63,15 @@ const operators: Record<string, WithFilter | NoFilter | DotOperator> = {
 
 export const NoValue = Symbol('NoValue');
 
+/**
+ * Evaluates a value from a string expression.
+ * In strict mode, missing variables return NoValue instead of undefined.
+ *
+ * @param originStr - String expression to evaluate
+ * @param scope - Variable scope
+ * @param strict - If true, missing variables return NoValue; if false, return undefined
+ * @returns Evaluated value, NoValue (in strict mode), or undefined
+ */
 function evalValue(originStr: string, scope: Scope, strict: boolean) {
     const str = originStr && originStr.trim();
     if (!str) {
@@ -73,6 +82,8 @@ function evalValue(originStr: string, scope: Scope, strict: boolean) {
         return lexical.parseLiteral(str);
     }
     if (lexical.isVariable(str)) {
+        // In strict mode, missing variables return NoValue (Symbol) instead of undefined
+        // This affects condition evaluation - NoValue is considered falsy
         return getObject(str, scope, strict ? NoValue : undefined);
     }
 

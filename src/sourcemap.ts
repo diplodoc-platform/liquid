@@ -62,8 +62,9 @@ export class SourceMap {
                 }
             }
 
-            // TODO: thisk about this
-            // Promise.resolve().then(() => lazy = null);
+            // TODO: Consider memory optimization - clear lazy map after dump
+            // The lazy map could be cleared asynchronously after dump() is called
+            // to free memory, but this was not implemented to avoid potential race conditions
 
             return lazy;
         };

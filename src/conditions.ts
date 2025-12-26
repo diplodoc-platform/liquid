@@ -196,6 +196,8 @@ function inlineConditions(
     let ifCon = null;
 
     for (const condition of ifTag) {
+        // In strict mode, missing variables return NoValue instead of undefined
+        // This affects condition evaluation - NoValue is considered falsy
         const value = evaluate.call(this, condition.expr, vars, conditions === 'strict');
 
         if (

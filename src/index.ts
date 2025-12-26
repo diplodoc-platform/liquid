@@ -19,6 +19,17 @@ export {composeFrontMatter, extractFrontMatter} from './frontmatter';
  * Applies cycles, conditions, and substitutions based on context settings.
  * Preserves code blocks from Liquid processing by default.
  *
+ * **Processing Order** (current implementation):
+ * 1. Save code blocks (if conditionsInCode is false)
+ * 2. Process cycles
+ * 3. Process conditions
+ * 4. Process substitutions
+ * 5. Restore code blocks
+ *
+ * **Known Limitation**: The current order processes all cycles before conditions,
+ * which means cycles inside false condition branches are still expanded.
+ * A refactoring is planned to process constructs in document order.
+ *
  * @param this - Liquid context
  * @param input - Template string to process
  * @param vars - Variables for Liquid processing
@@ -50,22 +61,35 @@ export function liquidSnippet(
 
     let output = input;
 
+    // Save code blocks before processing to preserve them from Liquid syntax processing
+    // This maintains source map line numbers by keeping the same number of lines
     if (!conditionsInCode) {
         output = saveCode(output, vars);
     }
 
+    // NOTE: Current processing order (cycles -> conditions -> substitutions) is not ideal.
+    // Ideally, we should process tags in the order they appear in the document.
+    // This would allow us to skip cycles inside false condition branches.
+    // Refactoring is planned to implement proper sequential processing.
+
+    // Process cycles first (all {% for %} blocks)
     if (cycles) {
         output = applyCycles.call(this, output, vars, sourcemap);
     }
 
+    // Process conditions (all {% if %} blocks)
+    // In strict mode, missing variables return NoValue instead of undefined
     if (conditions) {
         output = applyConditions.call(this, output, vars, sourcemap);
     }
 
+    // Process substitutions last (all {{ variable }} patterns)
+    // This allows variables from cycles/conditions to be substituted
     if (substitutions) {
         output = applySubstitutions.call(this, output, vars);
     }
 
+    // Restore code blocks after processing
     if (!conditionsInCode && typeof output === 'string') {
         output = repairCode(output);
     }
@@ -105,6 +129,10 @@ export function liquidJson(
  * Extracts and processes frontmatter separately, then processes the content body.
  * Composes the result with processed frontmatter.
  *
+ * **Frontmatter Processing**: Frontmatter is processed via `liquidJson` (not `liquidSnippet`)
+ * because it's extracted as an object structure, not a string. This allows processing
+ * Liquid syntax in all string values within the frontmatter object recursively.
+ *
  * @param this - Liquid context
  * @param input - Full YFM document string with optional frontmatter
  * @param vars - Variables for Liquid processing
@@ -128,20 +156,26 @@ export function liquidDocument(
     vars: Record<string, unknown>,
     sourcemap?: SourceMap,
 ): string {
+    // Normalize line endings to Unix format
     const normalizedInput = input.replace(/\r\n/g, '\n');
 
+    // Extract frontmatter (returns [parsedObject, contentWithoutFrontmatter, rawFrontmatterString])
     const [frontMatter, strippedContent, rawFrontmatter] = extractFrontMatter(normalizedInput);
 
+    // Process frontmatter as an object (allows recursive processing of nested structures)
     const liquidedFrontMatter = liquidJson.call(this, frontMatter, vars);
     const composedFrontmatter = composeFrontMatter(liquidedFrontMatter);
 
+    // Update source map if frontmatter was modified
+    // This is important for yfmlint to report errors on original line numbers
     if (sourcemap && rawFrontmatter.length) {
         sourcemap.patch({
             replace: [[1, rawFrontmatter, composedFrontmatter]],
         });
     }
 
-    const liquidedResult = liquidSnippet.call(this, strippedContent, vars);
+    // Process content body as a string
+    const liquidedResult = liquidSnippet.call(this, strippedContent, vars, sourcemap);
 
     return composedFrontmatter + liquidedResult;
 }

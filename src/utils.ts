@@ -74,15 +74,20 @@ export function codeUtils(this: LiquidContext) {
             fence,
             fence,
             (code) => {
+                // Apply substitutions to code blocks if enabled
+                // This allows variables in code examples to be processed
                 const codeWithVars = substitutions
                     ? applySubstitutions.call(this, code, vars)
                     : code;
                 const index = codes.push(codeWithVars) - 1;
 
-                /* Keep the same count of lines to avoid transformation of the source map */
+                // Keep the same number of lines to preserve source map accuracy
+                // Source maps are used by yfmlint to report errors on original line numbers
+                // The emptyLines preserve line count so source map mappings remain correct
                 const codeLines = codeWithVars.split('\n');
                 const emptyLines = codeLines.length > 1 ? '\n'.repeat(codeLines.length) : '';
 
+                // Return placeholder: index for lookup + empty lines for line count preservation
                 return `${index}${emptyLines}`;
             },
             str,

@@ -110,29 +110,37 @@ The main entry point (`src/index.ts`) exports:
 
 ### Processing Pipeline
 
+**Important Note**: The current processing order (cycles → conditions → substitutions) is a known limitation. Ideally, tags should be processed in the order they appear in the document. This would allow skipping cycles inside false condition branches. Refactoring is planned to implement proper sequential processing.
+
 1. **Frontmatter Extraction** (for `liquidDocument`):
 
    - Extracts YAML frontmatter from document
-   - Processes frontmatter with `liquidJson`
+   - Processes frontmatter with `liquidJson` (as object, not string)
    - Composes processed frontmatter back
+   - Updates source map for frontmatter changes
 
 2. **Code Block Preservation**:
 
    - Saves code blocks before processing (if `conditionsInCode` is false)
-   - Processes Liquid syntax
+   - Replaces code blocks with placeholders (`${index}${emptyLines}`)
+   - Preserves line count to maintain source map accuracy
+   - Processes Liquid syntax on the rest of the document
    - Restores code blocks after processing
 
 3. **Cycle Processing** (`applyCycles`):
 
    - Finds `{% for ... in ... %}` blocks
    - Evaluates collection expression
-   - Iterates and processes loop body
+   - Iterates and processes loop body with `liquidSnippet` (recursive)
    - Supports nested loops and conditions
+   - **Current limitation**: Cycles inside false condition branches are still processed
 
 4. **Condition Processing** (`applyConditions`):
 
    - Finds `{% if ... %}...{% endif %}` blocks
    - Evaluates condition expressions
+   - In `strict` mode: missing variables return `NoValue` (condition is false)
+   - In normal mode: missing variables return `undefined` (condition is false)
    - Includes/excludes content based on condition
    - Supports `{% elsif %}` and `{% else %}`
 
@@ -141,6 +149,7 @@ The main entry point (`src/index.ts`) exports:
    - Evaluates variable paths (supports dot notation)
    - Replaces with actual values
    - Handles missing variables (warns or keeps original)
+   - Processes last to allow variables from cycles/conditions to be substituted
 
 ### Expression Evaluation
 
@@ -162,12 +171,16 @@ The `syntax/lexical.ts` module provides regex patterns for:
 
 ### Source Maps
 
-The `sourcemap.ts` module tracks:
+The `sourcemap.ts` module tracks transformations for accurate error reporting:
 
-- Line mappings between source and output
-- Deletions (removed conditional blocks)
-- Replacements (cycle iterations)
-- Patch operations for debugging
+- **Purpose**: Maps processed output back to original source lines
+- **Usage**: Used by `yfmlint` to report errors on original line numbers after Liquid processing
+- **Operations**:
+  - Line mappings between source and output
+  - Deletions (removed conditional blocks)
+  - Replacements (cycle iterations, frontmatter changes)
+  - Offset tracking for line number adjustments
+- **Code Block Preservation**: Code blocks preserve line count (`emptyLines`) to maintain source map accuracy
 
 ## Configuration
 
@@ -176,7 +189,10 @@ The `sourcemap.ts` module tracks:
 ```typescript
 {
   conditions?: boolean | 'strict';      // Enable/disable conditions
+                                        // 'strict': missing variables return NoValue (condition is false)
+                                        // true: missing variables return undefined (condition is false)
   conditionsInCode?: boolean;            // Process conditions in code blocks
+                                        // Controlled via .yfm config: template.scopes.code
   keepConditionSyntaxOnTrue?: boolean;   // Keep syntax when condition is true
   cycles?: boolean;                      // Enable/disable cycles
   substitutions?: boolean;               // Enable/disable substitutions
