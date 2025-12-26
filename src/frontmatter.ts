@@ -1,5 +1,6 @@
 import {dump, load} from 'js-yaml';
-import cloneDeepWith from 'lodash/cloneDeepWith';
+
+import {cloneDeepWith} from './utils/cloneDeepWith';
 
 export type FrontMatter = {
     [key: string]: unknown;

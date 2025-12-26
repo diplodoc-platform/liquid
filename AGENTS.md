@@ -65,7 +65,6 @@ This package follows the standard Diplodoc platform tech stack. See `.agents/dev
 
 - `chalk` - Terminal string styling for error messages
 - `js-yaml` - YAML parsing for frontmatter
-- `lodash` - Utility functions (cloneDeepWith)
 
 ## Public API
 
