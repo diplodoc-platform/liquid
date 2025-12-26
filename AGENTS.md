@@ -267,22 +267,6 @@ npm run dev:lib        # Watch mode for development
 - Type declarations: `lib/**/*.d.ts`
 - Source maps: `lib/**/*.js.map`
 
-## Dependencies
-
-### Runtime Dependencies
-
-- `chalk` - Terminal styling for error messages
-- `js-yaml` - YAML parsing for frontmatter
-- `lodash` - Utility functions (minimal usage: `cloneDeepWith`)
-
-### Dev Dependencies
-
-- `@diplodoc/lint` - Linting and formatting
-- `@diplodoc/tsconfig` - TypeScript configuration base
-- `jest` - Testing framework
-- `ts-jest` - Jest transformer for TypeScript
-- `@types/*` - TypeScript type definitions
-
 ## Important Notes
 
 1. **Code Block Preservation**: The package preserves code blocks (fenced code blocks, inline code) from Liquid processing by default. This is controlled by `conditionsInCode` setting.
