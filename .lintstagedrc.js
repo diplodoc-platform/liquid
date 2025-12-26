@@ -18,10 +18,7 @@ module.exports = {
         if (filtered.length === 0) {
             return [];
         }
-        return [
-            (filenames) => `prettier --write ${filenames.join(' ')}`,
-            (filenames) => `eslint --max-warnings=0 --fix --no-warn-ignored ${filenames.join(' ')}`,
-        ];
+        return ['prettier --write', 'eslint --max-warnings=0 --fix --no-warn-ignored'];
     },
     // Handle .lintstagedrc.js separately (only prettier, no eslint)
     '.lintstagedrc.js': ['prettier --write'],
