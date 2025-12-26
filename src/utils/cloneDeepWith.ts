@@ -9,7 +9,10 @@
 export function cloneDeepWith<T>(value: T, customizer: (val: unknown) => unknown | undefined): T {
     if (value === null || typeof value !== 'object') {
         const custom = customizer(value);
-        return custom !== undefined ? (custom as T) : value;
+        if (custom !== undefined) {
+            return custom as T;
+        }
+        return value;
     }
 
     if (value instanceof Date) {
@@ -28,10 +31,11 @@ export function cloneDeepWith<T>(value: T, customizer: (val: unknown) => unknown
     for (const key in value) {
         if (Object.prototype.hasOwnProperty.call(value, key)) {
             const custom = customizer(value[key]);
-            cloned[key] =
-                custom !== undefined
-                    ? (custom as T[Extract<keyof T, string>])
-                    : cloneDeepWith(value[key], customizer);
+            if (custom !== undefined) {
+                cloned[key] = custom as T[Extract<keyof T, string>];
+            } else {
+                cloned[key] = cloneDeepWith(value[key], customizer);
+            }
         }
     }
 
