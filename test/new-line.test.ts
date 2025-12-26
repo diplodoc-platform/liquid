@@ -1,6 +1,7 @@
 import type {LiquidSettings} from 'src/types';
 
 import dedent from 'ts-dedent';
+import {describe, it, expect} from 'vitest';
 
 import {createContext} from 'src';
 import {applyConditions} from 'src/conditions';

@@ -1,6 +1,7 @@
 import type {LiquidSettings} from '../src/types';
 
 import dedent from 'ts-dedent';
+import {describe, test, expect} from 'vitest';
 
 import {createContext, liquidSnippet as liquid} from '../src';
 import {logger} from '../src/utils';

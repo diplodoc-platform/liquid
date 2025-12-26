@@ -1,6 +1,7 @@
 import type {LiquidSettings} from '../src/types';
 
 import dedent from 'ts-dedent';
+import {describe, it, expect} from 'vitest';
 
 import {composeFrontMatter, extractFrontMatter} from '../src/frontmatter';
 import {createContext, liquidDocument as liquid} from '../src';

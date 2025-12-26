@@ -7,7 +7,7 @@
     "baseUrl": ".",
     "declaration": true,
     "target": "ES2018",
-    "types": ["jest"],
+    "types": [],
     "sourceMap": true
   },
   "include": ["src/**/*", "test/**/*"]

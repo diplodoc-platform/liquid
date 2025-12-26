@@ -1,5 +1,7 @@
 import type {LiquidSettings} from '../src/types';
 
+import {describe, test, expect} from 'vitest';
+
 import {applySubstitutions} from '../src/substitutions';
 import {createContext} from '../src';
 import {logger} from '../src/utils';

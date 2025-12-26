@@ -1,3 +1,5 @@
+import {describe, it, expect} from 'vitest';
+
 import {SourceMap} from '../src/sourcemap';
 import {createContext, liquidSnippet as liquid} from '../src';
 import {logger} from '../src/utils';

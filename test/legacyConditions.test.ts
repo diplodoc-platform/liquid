@@ -1,6 +1,7 @@
 import type {LiquidSettings} from '../src/types';
 
 import dedent from 'ts-dedent';
+import {describe, test, expect, vi} from 'vitest';
 
 import {logger} from '../src/utils';
 import {applyConditions} from '../src/conditions';
@@ -500,10 +501,10 @@ describe('LegacyConditions', () => {
     describe('Error handling', () => {
         test('Should handle endif without matching if', () => {
             const mockLogger = {
-                error: jest.fn(),
-                warn: jest.fn(),
-                info: jest.fn(),
-                log: jest.fn(),
+                error: vi.fn(),
+                warn: vi.fn(),
+                info: vi.fn(),
+                log: vi.fn(),
             };
             const context = createContext(mockLogger, {legacyConditions: true});
 
@@ -516,10 +517,10 @@ describe('LegacyConditions', () => {
 
         test('Should handle unclosed if block', () => {
             const mockLogger = {
-                error: jest.fn(),
-                warn: jest.fn(),
-                info: jest.fn(),
-                log: jest.fn(),
+                error: vi.fn(),
+                warn: vi.fn(),
+                info: vi.fn(),
+                log: vi.fn(),
             };
             const context = createContext(mockLogger, {legacyConditions: true});
 
@@ -552,10 +553,10 @@ describe('LegacyConditions', () => {
 
         test('Should handle else without preceding if', () => {
             const mockLogger = {
-                error: jest.fn(),
-                warn: jest.fn(),
-                info: jest.fn(),
-                log: jest.fn(),
+                error: vi.fn(),
+                warn: vi.fn(),
+                info: vi.fn(),
+                log: vi.fn(),
             };
             const context = createContext(mockLogger, {legacyConditions: true});
 
@@ -568,10 +569,10 @@ describe('LegacyConditions', () => {
 
         test('Should handle elsif without preceding if', () => {
             const mockLogger = {
-                error: jest.fn(),
-                warn: jest.fn(),
-                info: jest.fn(),
-                log: jest.fn(),
+                error: vi.fn(),
+                warn: vi.fn(),
+                info: vi.fn(),
+                log: vi.fn(),
             };
             const context = createContext(mockLogger, {legacyConditions: true});
 
@@ -584,10 +585,10 @@ describe('LegacyConditions', () => {
 
         test('Should handle else after endif (orphaned else)', () => {
             const mockLogger = {
-                error: jest.fn(),
-                warn: jest.fn(),
-                info: jest.fn(),
-                log: jest.fn(),
+                error: vi.fn(),
+                warn: vi.fn(),
+                info: vi.fn(),
+                log: vi.fn(),
             };
             const context = createContext(mockLogger, {legacyConditions: true});
 

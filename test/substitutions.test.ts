@@ -1,3 +1,5 @@
+import {describe, test, expect} from 'vitest';
+
 import type {LiquidSettings} from '../src/types';
 
 import {createContext, liquidSnippet as liquid} from '../src';

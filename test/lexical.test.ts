@@ -1,3 +1,5 @@
+import {describe, test, expect} from 'vitest';
+
 import {isSingleVariable} from '../src/syntax/lexical';
 
 describe('Lexical functions', () => {
