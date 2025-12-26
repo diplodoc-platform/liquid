@@ -13,3 +13,7 @@ node_modules
 /external
 test/
 scripts/
+.lintstagedrc.js
+.eslintrc.js
+.prettierrc.js
+.stylelintrc.js
