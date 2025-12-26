@@ -6,10 +6,7 @@
  * @param customizer - Function that produces custom cloned values
  * @returns Cloned value
  */
-export function cloneDeepWith<T>(
-    value: T,
-    customizer: (val: unknown) => unknown | undefined,
-): T {
+export function cloneDeepWith<T>(value: T, customizer: (val: unknown) => unknown | undefined): T {
     if (value === null || typeof value !== 'object') {
         const custom = customizer(value);
         return custom !== undefined ? (custom as T) : value;
@@ -40,4 +37,3 @@ export function cloneDeepWith<T>(
 
     return cloned;
 }
-
