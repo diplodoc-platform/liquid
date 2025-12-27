@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.5.0](https://github.com/diplodoc-platform/liquid/compare/v1.4.0...v1.5.0) (2025-12-27)
+
+
+### Features
+
+* add unit tests to pre-commit hook and fix ESLint warnings ([c1b956f](https://github.com/diplodoc-platform/liquid/commit/c1b956f2d29e2573cf10856c5a4223c1dd5ad5ad))
+
+
+### Bug Fixes
+
+* add include-component-in-tag: false to release-please config ([1da2fcc](https://github.com/diplodoc-platform/liquid/commit/1da2fccc1d7051853e462e4ff941ebec102454fa))
+* correct dependency installation for workspace mode ([f78dda0](https://github.com/diplodoc-platform/liquid/commit/f78dda09522981e97a8c3e62dda7f1c78b94f324))
+* remove invalid --no-warn-ignored flag from ESLint command ([2681934](https://github.com/diplodoc-platform/liquid/commit/26819343094316224400e8d7fbe141935ca4cf82))
+* remove package-name from release-please config ([791d990](https://github.com/diplodoc-platform/liquid/commit/791d9904c82a298932632245a55bc99c7077dc51))
+* replace lodash/cloneDeepWith with native implementation ([b48d8e0](https://github.com/diplodoc-platform/liquid/commit/b48d8e0a3270d6761030f70108be5f11bea6bbdb))
+* resolve ESLint issues in cloneDeepWith and vitest.config.mjs ([87aab8a](https://github.com/diplodoc-platform/liquid/commit/87aab8aa4eebdb4961402a19a918ee102b444fc8))
+* resolve ESLint negated condition warning and vitest.config.mjs parsing ([2c16df5](https://github.com/diplodoc-platform/liquid/commit/2c16df560a8d5a302cecceb18173a6e4a711b865))
+* resolve ESLint negated condition warning by inverting condition ([7fa3893](https://github.com/diplodoc-platform/liquid/commit/7fa3893a6e51adef34f323429f4c73b12ac34777))
+* resolve ESLint warnings for negated conditions in cloneDeepWith ([d2f16a2](https://github.com/diplodoc-platform/liquid/commit/d2f16a25a481401e326101719ee904bb79623b2c))
+* resolve prettier issue in lint-staged by passing filenames explicitly ([d22a2a3](https://github.com/diplodoc-platform/liquid/commit/d22a2a3cf2736b53f1672cea58889ac2285b970a))
+* update CI workflow for workspace compatibility ([ecb7a43](https://github.com/diplodoc-platform/liquid/commit/ecb7a43493644ca91e71c6f001b1646d4604b0be))
+* update lint-staged config to exclude config files from ESLint ([64f6c78](https://github.com/diplodoc-platform/liquid/commit/64f6c788defaff88cef8000dd8d33b50c09e38ae))
+
 ## [1.4.0](https://github.com/diplodoc-platform/liquid/compare/v1.3.4...v1.4.0) (2025-12-22)
 
 
