@@ -17,3 +17,4 @@ scripts/
 .eslintrc.js
 .prettierrc.js
 .stylelintrc.js
+esbuild/**/*.mjs
