@@ -5,8 +5,25 @@ const doubleQuoted = /"[^"]*"/;
 const quoted = new RegExp(`${singleQuoted.source}|${doubleQuoted.source}`);
 export const quoteBalanced = new RegExp(`(?:${quoted.source}|[^'"])*`);
 
-export const vars = /((not_var)?({{2}([. \w-|(),]+)}{2}))/gm;
-export const singleVariable = /^{{2}([. \w-|(),]+)}{2}$/;
+// Jinja2 expression content:
+// \w          - identifiers (letters, digits, underscore)
+// .           - attribute access
+// \-          - hyphen in names, negative numbers
+// |           - filters
+// ()          - function calls
+// ,           - argument separator
+// '"          - string literals
+// =           - named parameters
+// []          - indexing, subscript
+// :           - slices, dict literals
+// +*/%        - arithmetic operators
+// <>!         - comparison operators
+// ~           - Jinja string concatenation
+// @           - decorators (rare)
+// \s already handled by space in character class
+const varsContent = /[.\w\-|(),'=":[\]+*/%<>!~@\s]+/;
+export const vars = new RegExp(`((not_var)?({{2}(${varsContent.source})}{2}))`, 'gm');
+export const singleVariable = new RegExp(`^{{2}(${varsContent.source})}{2}$`);
 
 // basic types
 const number = /-?\d+\.?\d*|\.?\d+/;

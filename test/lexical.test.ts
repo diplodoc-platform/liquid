@@ -51,5 +51,91 @@ describe('Lexical functions', () => {
         test('Unmatched curly braces should return false', () => {
             expect(isSingleVariable('{{variable}')).toEqual(false);
         });
+
+        // Function calls with parameters
+        test('Function call with single param', () => {
+            expect(isSingleVariable('{{ do_something(1) }}')).toEqual(true);
+        });
+
+        test('Function call with multiple params', () => {
+            expect(isSingleVariable("{{ do_something(2, 'explicit value', 200) }}")).toEqual(true);
+        });
+
+        test('Function call with named param', () => {
+            expect(isSingleVariable('{{ do_something(3, param_3=300) }}')).toEqual(true);
+        });
+
+        test('Function call without params', () => {
+            expect(isSingleVariable('{{ do_something_without_params() }}')).toEqual(true);
+        });
+
+        // Function calls with not_var prefix
+        test('Function call with not_var prefix should return false', () => {
+            expect(isSingleVariable('not_var{{ do_something(1) }}')).toEqual(false);
+        });
+
+        test('Function call without params with not_var prefix should return false', () => {
+            expect(isSingleVariable('not_var{{ do_something_without_params() }}')).toEqual(false);
+        });
+
+        // Function calls with comments
+        test('Function call followed by comment should return false', () => {
+            expect(
+                isSingleVariable(
+                    "not_var{{ do_something(1) }} {#- do_something(1, 'default value', none) -#}",
+                ),
+            ).toEqual(false);
+        });
+
+        test('Function call with params followed by comment should return false', () => {
+            expect(
+                isSingleVariable(
+                    "{{ do_something(2, 'explicit value', 200) }} {#- do_something(1, 'explicit value', 100) -#}",
+                ),
+            ).toEqual(false);
+        });
+
+        test('Function call with named param followed by comment should return false', () => {
+            expect(
+                isSingleVariable(
+                    "{{ do_something(3, param_3=300) }} {#- do_something(1, 'default value', 300) -#}",
+                ),
+            ).toEqual(false);
+        });
+
+        // Macro definitions
+        test('Macro definition with default params should return false', () => {
+            expect(
+                isSingleVariable(
+                    "{%- macro do_something(param_1, param_2='default value', param_3=none) -%}",
+                ),
+            ).toEqual(false);
+        });
+
+        test('Macro definition without params should return false', () => {
+            expect(isSingleVariable('{%- macro do_something_without_params() -%}')).toEqual(false);
+        });
+
+        test('Macro endmacro tag should return false', () => {
+            expect(isSingleVariable('{%- endmacro -%}')).toEqual(false);
+        });
+
+        test('Full macro block should return false', () => {
+            expect(
+                isSingleVariable(`{%- macro do_something(param_1, param_2='default value', param_3=none) -%}
+    {# body of macro here #}
+{%- endmacro -%}`),
+            ).toEqual(false);
+        });
+
+        test('Comment only should return false', () => {
+            expect(isSingleVariable('{# body of macro here #}')).toEqual(false);
+        });
+
+        test('Trimmed comment should return false', () => {
+            expect(isSingleVariable("{#- do_something(1, 'default value', none) -#}")).toEqual(
+                false,
+            );
+        });
     });
 });
