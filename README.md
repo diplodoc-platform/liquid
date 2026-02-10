@@ -1,4 +1,9 @@
 [![NPM version](https://img.shields.io/npm/v/@diplodoc/liquid.svg?style=flat)](https://www.npmjs.org/package/@diplodoc/liquid)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=diplodoc-platform_liquid&metric=alert_status)](https://sonarcloud.io/summary/overall?id=diplodoc-platform_liquid)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=diplodoc-platform_liquid&metric=coverage)](https://sonarcloud.io/summary/overall?id=diplodoc-platform_liquid)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=diplodoc-platform_liquid&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=diplodoc-platform_liquid)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=diplodoc-platform_liquid&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=diplodoc-platform_liquid)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=diplodoc-platform_liquid&metric=security_rating)](https://sonarcloud.io/summary/overall?id=diplodoc-platform_liquid)
 
 # @diplodoc/liquid
 
