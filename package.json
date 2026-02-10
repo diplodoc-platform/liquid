@@ -54,7 +54,7 @@
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "@diplodoc/lint": "^1.9.2",
+    "@diplodoc/lint": "^1.13.2",
     "@diplodoc/tsconfig": "^1.0.2",
     "@types/js-yaml": "^4.0.9",
     "@vitest/coverage-v8": "^2.1.9",
