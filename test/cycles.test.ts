@@ -188,4 +188,54 @@ describe('Cycles', () => {
             ).toEqual('```\nAlice Ivan Petr\n```');
         });
     });
+
+    describe('disabled (cycles: false)', () => {
+        test('preserves {% for %} block as-is without expansion', () => {
+            // Use a loop variable name that doesn't exist as a global, so
+            // {{ item }} stays a literal when substitutions can't resolve it.
+            const input = dedent`
+                {% for item in users %}
+                Hello, {{ item }}!
+                {% endfor %}
+            `;
+            // With substitutions also off, the block stays untouched.
+            expect(liquidSnippet(input, vars, {cycles: false, substitutions: false})).toEqual(
+                input,
+            );
+        });
+
+        test('preserves {% for %} block when substitutions are also disabled', () => {
+            // Regression for DOCSSUP-3862 / CLOUDFRONT-54484: when both cycles
+            // and substitutions are off (private→public repo copy via
+            // --no-apply-presets), {% for %} loops must NOT be expanded into
+            // N copies with literal {{ var }} text.
+            const input = dedent`
+                #|
+                || Version | Date ||
+                {% for version in versions %}
+                || {{ version.name }} | {{ version.date }} ||
+                {% endfor %}
+                |#
+            `;
+            const localVars = {
+                versions: [
+                    {name: '1.34', date: '12.12.2025'},
+                    {name: '1.33', date: '01.10.2025'},
+                ],
+            };
+            expect(liquidSnippet(input, localVars, {cycles: false, substitutions: false})).toEqual(
+                input,
+            );
+        });
+
+        test('still applies substitutions outside {% for %} block', () => {
+            const input = '{{ user }}\n{% for u in users %}{{ u }}{% endfor %}';
+            // `user` outside the loop is substituted; `u` inside the loop
+            // is left as a literal because the loop is not expanded and `u`
+            // has no global binding.
+            expect(liquidSnippet(input, vars, {cycles: false})).toEqual(
+                'Alex\n{% for u in users %}{{ u }}{% endfor %}',
+            );
+        });
+    });
 });
