@@ -57,12 +57,12 @@ function inlineConditions(
         let res = liquidSnippet.call(this, forTemplate, newVars).replace(/ +$/, '');
 
         if (this.settings?.substitutions === false) {
+            const regex = new RegExp(`^${forTag.variableName}(?:[.\\s|]|$)`);
             res = res.replace(varsRe, (match, _group1, flag, _groupVar, groupVarValue) => {
                 if (flag) {
                     return match;
                 }
                 const trimVarPath = groupVarValue.trim();
-                const regex = new RegExp(`^${forTag.variableName}(?:[.\\s|]|$)`);
                 if (regex.test(trimVarPath)) {
                     const rest = trimVarPath.slice(forTag.variableName.length);
                     return `{{ ${forTag.collectionName}.${index}${rest} }}`;
