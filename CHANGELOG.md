@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.5.1](https://github.com/diplodoc-platform/liquid/compare/v1.5.0...v1.5.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* remove unused catch variables in evaluate.ts ([aa04813](https://github.com/diplodoc-platform/liquid/commit/aa048136dd6801dcdfa89a0bbe6acd4aceefa127))
+* Update infra to v1.13.2 ([1d8d5e1](https://github.com/diplodoc-platform/liquid/commit/1d8d5e1b6edb303269f54385c80fae546831e71d))
+* variable resolve with substitutions=false ([8c2e7e1](https://github.com/diplodoc-platform/liquid/commit/8c2e7e17ffcbaf154c3219060f3a8e725465d413))
+
 ## [1.5.0](https://github.com/diplodoc-platform/liquid/compare/v1.4.0...v1.5.0) (2025-12-27)
 
 
