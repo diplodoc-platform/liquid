@@ -157,6 +157,63 @@ describe('Cycles', () => {
                 Postfix
             `);
         });
+
+        const keyValues = [
+            {name: 'apple', rapid: '10', regular: 'red'},
+            {name: 'banana', rapid: '20', regular: 'yellow'},
+            {name: 'cherry', rapid: '30', regular: 'red'},
+        ];
+
+        test('YFM table with for block', () => {
+            const input = dedent`
+                #|
+                {% for type in key-values %}
+                || {{ type.name }} | {{ type.rapid }} | {{ type.regular }} ||
+                {% endfor %}
+                |#
+            `;
+            const result = dedent`
+                #|
+                || apple | 10 | red ||
+                || banana | 20 | yellow ||
+                || cherry | 30 | red ||
+                |#
+            `;
+            expect(liquidSnippet(input, {'key-values': keyValues})).toEqual(result);
+        });
+
+        test('YFM table with for block (substitutions: false)', () => {
+            const input = dedent`
+                #|
+                {% for type in key-values %}
+                || {{ type.name | capitalize }} | {{ type.rapid }} | {{ type.regular }} ||
+                {% endfor %}
+                |#
+            `;
+            const result = dedent`
+                #|
+                || {{ key-values.0.name | capitalize }} | {{ key-values.0.rapid }} | {{ key-values.0.regular }} ||
+                || {{ key-values.1.name | capitalize }} | {{ key-values.1.rapid }} | {{ key-values.1.regular }} ||
+                || {{ key-values.2.name | capitalize }} | {{ key-values.2.rapid }} | {{ key-values.2.regular }} ||
+                |#
+            `;
+            const finalResult = dedent`
+                #|
+                || Apple | 10 | red ||
+                || Banana | 20 | yellow ||
+                || Cherry | 30 | red ||
+                |#
+            `;
+            const intermediateResult = liquidSnippet(
+                input,
+                {'key-values': keyValues},
+                {substitutions: false},
+            );
+            expect(intermediateResult).toEqual(result);
+            expect(liquidSnippet(intermediateResult, {'key-values': keyValues})).toEqual(
+                finalResult,
+            );
+        });
     });
 
     describe('with conditions, filters, substitutions', () => {

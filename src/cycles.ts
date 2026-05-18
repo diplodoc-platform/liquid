@@ -3,7 +3,7 @@ import type {SourceMap} from './sourcemap';
 
 import chalk from 'chalk';
 
-import {tagLine, variable} from './syntax/lexical';
+import {tagLine, variable, vars as varsRe} from './syntax/lexical';
 import {evaluate} from './syntax/evaluate';
 import {getPreparedLeftContent} from './utils';
 
@@ -52,9 +52,26 @@ function inlineConditions(
         this.logger.error(`${chalk.bold(forTag.collectionName)} is undefined or not iterable`);
     }
 
-    const results = collection.map((item) => {
+    const results = collection.map((item, index) => {
         const newVars = {...vars, [forTag.variableName]: item};
-        return liquidSnippet.call(this, forTemplate, newVars).replace(/ +$/, '');
+        let res = liquidSnippet.call(this, forTemplate, newVars).replace(/ +$/, '');
+
+        if (this.settings?.substitutions === false) {
+            res = res.replace(varsRe, (match, _group1, flag, _groupVar, groupVarValue) => {
+                if (flag) {
+                    return match;
+                }
+                const trimVarPath = groupVarValue.trim();
+                const regex = new RegExp(`^${forTag.variableName}(?:[.\\s|]|$)`);
+                if (regex.test(trimVarPath)) {
+                    const rest = trimVarPath.slice(forTag.variableName.length);
+                    return `{{ ${forTag.collectionName}.${index}${rest} }}`;
+                }
+                return match;
+            });
+        }
+
+        return res;
     });
 
     let res = results.join(forTag.multiline ? '\n' : '');
