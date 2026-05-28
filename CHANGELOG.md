@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.2](https://github.com/diplodoc-platform/liquid/compare/v1.5.1...v1.5.2) (2026-05-28)
+
+
+### Bug Fixes
+
+* **deps:** updated node to 24 ([d4fbbb4](https://github.com/diplodoc-platform/liquid/commit/d4fbbb414135a63acf6cd7e8a5da43740e717073))
+* **deps:** updated node to 24 ([ceb268b](https://github.com/diplodoc-platform/liquid/commit/ceb268b362ffbcc1a458d48ffbc544ad2bdabe9c))
+
 ## [1.5.1](https://github.com/diplodoc-platform/liquid/compare/v1.5.0...v1.5.1) (2026-05-18)
 
 
