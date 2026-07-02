@@ -47,7 +47,8 @@
     "lint": "lint",
     "lint:fix": "lint fix",
     "pre-commit": "lint-staged",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "lock": "npm install --no-workspaces --package-lock-only --ignore-scripts"
   },
   "dependencies": {
     "chalk": "4",
@@ -61,6 +62,6 @@
     "ts-dedent": "^2.2.0",
     "typescript": "^5.2.2",
     "vitest": "^2.1.9",
-    "@diplodoc/infra": "2.0.7"
+    "@diplodoc/infra": "2.1.0"
   }
 }
