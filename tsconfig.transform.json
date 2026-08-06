@@ -4,12 +4,12 @@
     "lib": ["DOM", "es2018"],
     "outDir": "lib",
     "module": "commonjs",
-    "baseUrl": ".",
     "declaration": true,
     "isolatedModules": true,
     "noImplicitAny": true,
     "target": "ES2018",
-    "sourceMap": true
+    "sourceMap": true,
+    "rootDir": "./src"
   },
   "include": ["src/**/*"]
 }
