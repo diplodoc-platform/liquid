@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.3](https://github.com/diplodoc-platform/liquid/compare/v1.5.2...v1.5.3) (2026-08-06)
+
+
+### Bug Fixes
+
+* Upgrade typescript to 5.9.3 DOCSTOOLS-6357 ([10cef7b](https://github.com/diplodoc-platform/liquid/commit/10cef7b1ee8862787d95e44b692c04cf7ecc0d3e))
+* Upgrade typescript to 6.0.3 DOCSTOOLS-6359 ([5bf3afb](https://github.com/diplodoc-platform/liquid/commit/5bf3afbfcc63b442da45865586f9a1fd2808c5f4))
+
 ## [1.5.2](https://github.com/diplodoc-platform/liquid/compare/v1.5.1...v1.5.2) (2026-05-28)
 
 
