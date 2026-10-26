@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "chalk": "4",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^5.4.2"
   },
   "devDependencies": {
     "@diplodoc/infra": "2.3.0",
