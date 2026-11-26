@@ -51,7 +51,7 @@
     "lock": "npm install --no-workspaces --package-lock-only --ignore-scripts"
   },
   "dependencies": {
-    "chalk": "4",
+    "chalk": "6",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
